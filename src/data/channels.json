@@ -786,118 +786,6 @@
   {
     "id": "ch-8",
     "channelNumber": 8,
-    "name": "Babyfirst",
-    "category": "infantil",
-    "subcategory": "Pré-Escolar & Educativo",
-    "logo": "",
-    "tvgId": "BabyFirst.us@Brazil",
-    "streams": [
-      {
-        "title": "Babyfirst (HD)",
-        "url": "https://jmp2.uk/plu-5f4fb4cf605ddf000748e16f.m3u8",
-        "quality": "HD",
-        "referrer": null,
-        "userAgent": null
-      }
-    ],
-    "bestQuality": "HD",
-    "isAdultOrRestricted": false,
-    "minAgeRating": 0,
-    "description": "Transmissão ao vivo em HD do canal Babyfirst. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
-    "epgSchedule": [
-      {
-        "id": "epg-0-babyfirs",
-        "title": "Madrugada Babyfirst",
-        "description": "Seleção contínua com os melhores momentos e episódios de Babyfirst.",
-        "startTime": "00:00",
-        "endTime": "03:00",
-        "startMinutes": 0,
-        "endMinutes": 180,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-1-babyfirs",
-        "title": "Maratona Especial: Babyfirst",
-        "description": "Transmissão ininterrupta em alta definição.",
-        "startTime": "03:00",
-        "endTime": "06:00",
-        "startMinutes": 180,
-        "endMinutes": 360,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-2-babyfirs",
-        "title": "Manhã Babyfirst",
-        "description": "Destaques da programação de Pré-Escolar & Educativo para começar o dia.",
-        "startTime": "06:00",
-        "endTime": "09:00",
-        "startMinutes": 360,
-        "endMinutes": 540,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-3-babyfirs",
-        "title": "Sessão Babyfirst",
-        "description": "Programação principal ao vivo com áudio e imagem em alta definição.",
-        "startTime": "09:00",
-        "endTime": "12:00",
-        "startMinutes": 540,
-        "endMinutes": 720,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-4-babyfirs",
-        "title": "Especial da Tarde — Babyfirst",
-        "description": "Atrações selecionadas de Pré-Escolar & Educativo no PlayTelas.",
-        "startTime": "12:00",
-        "endTime": "15:00",
-        "startMinutes": 720,
-        "endMinutes": 900,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-5-babyfirs",
-        "title": "Tarde Ao Vivo: Babyfirst",
-        "description": "Continuidade da grade oficial em streaming adaptativo.",
-        "startTime": "15:00",
-        "endTime": "18:00",
-        "startMinutes": 900,
-        "endMinutes": 1080,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-6-babyfirs",
-        "title": "Horário Nobre Babyfirst",
-        "description": "Os grandes destaques e estreias de Babyfirst.",
-        "startTime": "18:00",
-        "endTime": "21:00",
-        "startMinutes": 1080,
-        "endMinutes": 1260,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-7-babyfirs",
-        "title": "Noite Prime: Babyfirst",
-        "description": "Edição noturna especial de Pré-Escolar & Educativo.",
-        "startTime": "21:00",
-        "endTime": "23:59",
-        "startMinutes": 1260,
-        "endMinutes": 1439,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      }
-    ]
-  },
-  {
-    "id": "ch-9",
-    "channelNumber": 9,
     "name": "BET",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -1008,8 +896,8 @@
     ]
   },
   {
-    "id": "ch-10",
-    "channelNumber": 10,
+    "id": "ch-9",
+    "channelNumber": 9,
     "name": "Beyblade",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -1120,8 +1008,8 @@
     ]
   },
   {
-    "id": "ch-11",
-    "channelNumber": 11,
+    "id": "ch-10",
+    "channelNumber": 10,
     "name": "BM&C News",
     "category": "noticias",
     "subcategory": "Economia & Política",
@@ -1232,8 +1120,8 @@
     ]
   },
   {
-    "id": "ch-12",
-    "channelNumber": 12,
+    "id": "ch-11",
+    "channelNumber": 11,
     "name": "Bob Esponja Calça Quadrada",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -1344,8 +1232,8 @@
     ]
   },
   {
-    "id": "ch-13",
-    "channelNumber": 13,
+    "id": "ch-12",
+    "channelNumber": 12,
     "name": "Boruto: Naruto Next Generations",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -1456,8 +1344,8 @@
     ]
   },
   {
-    "id": "ch-14",
-    "channelNumber": 14,
+    "id": "ch-13",
+    "channelNumber": 13,
     "name": "Caçadores de Óvnis",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -1568,8 +1456,8 @@
     ]
   },
   {
-    "id": "ch-15",
-    "channelNumber": 15,
+    "id": "ch-14",
+    "channelNumber": 14,
     "name": "CBS News",
     "category": "noticias",
     "subcategory": "Cobertura Ao Vivo 24h",
@@ -1680,8 +1568,8 @@
     ]
   },
   {
-    "id": "ch-16",
-    "channelNumber": 16,
+    "id": "ch-15",
+    "channelNumber": 15,
     "name": "Charmed: Jovens Bruxas",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -1792,8 +1680,8 @@
     ]
   },
   {
-    "id": "ch-17",
-    "channelNumber": 17,
+    "id": "ch-16",
+    "channelNumber": 16,
     "name": "Clube do Terror",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -1904,8 +1792,8 @@
     ]
   },
   {
-    "id": "ch-18",
-    "channelNumber": 18,
+    "id": "ch-17",
+    "channelNumber": 17,
     "name": "Cocoricó",
     "category": "infantil",
     "subcategory": "Pré-Escolar & Educativo",
@@ -2016,8 +1904,8 @@
     ]
   },
   {
-    "id": "ch-19",
-    "channelNumber": 19,
+    "id": "ch-18",
+    "channelNumber": 18,
     "name": "Comedy Central",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -2128,8 +2016,8 @@
     ]
   },
   {
-    "id": "ch-20",
-    "channelNumber": 20,
+    "id": "ch-19",
+    "channelNumber": 19,
     "name": "Comedy Central South Park",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -2240,8 +2128,8 @@
     ]
   },
   {
-    "id": "ch-21",
-    "channelNumber": 21,
+    "id": "ch-20",
+    "channelNumber": 20,
     "name": "CSI: Miami",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -2352,8 +2240,8 @@
     ]
   },
   {
-    "id": "ch-22",
-    "channelNumber": 22,
+    "id": "ch-21",
+    "channelNumber": 21,
     "name": "Death Note",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -2464,8 +2352,8 @@
     ]
   },
   {
-    "id": "ch-23",
-    "channelNumber": 23,
+    "id": "ch-22",
+    "channelNumber": 22,
     "name": "Detetives Médicos",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -2576,8 +2464,8 @@
     ]
   },
   {
-    "id": "ch-24",
-    "channelNumber": 24,
+    "id": "ch-23",
+    "channelNumber": 23,
     "name": "Diff’rent Strokes Arnold",
     "category": "infantil",
     "subcategory": "Clássicos da Infância",
@@ -2688,8 +2576,8 @@
     ]
   },
   {
-    "id": "ch-25",
-    "channelNumber": 25,
+    "id": "ch-24",
+    "channelNumber": 24,
     "name": "Estado Paranormal",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -2800,8 +2688,8 @@
     ]
   },
   {
-    "id": "ch-26",
-    "channelNumber": 26,
+    "id": "ch-25",
+    "channelNumber": 25,
     "name": "Euronews Portuguese",
     "category": "noticias",
     "subcategory": "Cobertura Ao Vivo 24h",
@@ -2912,8 +2800,8 @@
     ]
   },
   {
-    "id": "ch-27",
-    "channelNumber": 27,
+    "id": "ch-26",
+    "channelNumber": 26,
     "name": "FailArmy",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -3024,8 +2912,8 @@
     ]
   },
   {
-    "id": "ch-28",
-    "channelNumber": 28,
+    "id": "ch-27",
+    "channelNumber": 27,
     "name": "FIFA+",
     "category": "esportes",
     "subcategory": "Futebol & Variedades",
@@ -3136,8 +3024,8 @@
     ]
   },
   {
-    "id": "ch-29",
-    "channelNumber": 29,
+    "id": "ch-28",
+    "channelNumber": 28,
     "name": "Filmelier TV",
     "category": "filmes-series",
     "subcategory": "Cinema & Filmes",
@@ -3248,8 +3136,8 @@
     ]
   },
   {
-    "id": "ch-30",
-    "channelNumber": 30,
+    "id": "ch-29",
+    "channelNumber": 29,
     "name": "Filmes Suspense",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -3360,8 +3248,8 @@
     ]
   },
   {
-    "id": "ch-31",
-    "channelNumber": 31,
+    "id": "ch-30",
+    "channelNumber": 30,
     "name": "Homeful",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -3472,8 +3360,8 @@
     ]
   },
   {
-    "id": "ch-32",
-    "channelNumber": 32,
+    "id": "ch-31",
+    "channelNumber": 31,
     "name": "Hunter x Hunter",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -3584,8 +3472,8 @@
     ]
   },
   {
-    "id": "ch-33",
-    "channelNumber": 33,
+    "id": "ch-32",
+    "channelNumber": 32,
     "name": "Inspetor Bugiganga",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -3696,8 +3584,8 @@
     ]
   },
   {
-    "id": "ch-34",
-    "channelNumber": 34,
+    "id": "ch-33",
+    "channelNumber": 33,
     "name": "Inuyasha",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -3808,8 +3696,8 @@
     ]
   },
   {
-    "id": "ch-35",
-    "channelNumber": 35,
+    "id": "ch-34",
+    "channelNumber": 34,
     "name": "JoJo’s Bizarre Adventure",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -3920,8 +3808,8 @@
     ]
   },
   {
-    "id": "ch-36",
-    "channelNumber": 36,
+    "id": "ch-35",
+    "channelNumber": 35,
     "name": "Jornada nas Estrelas A Nova Geração",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -4032,8 +3920,8 @@
     ]
   },
   {
-    "id": "ch-37",
-    "channelNumber": 37,
+    "id": "ch-36",
+    "channelNumber": 36,
     "name": "Jornada nas Estrelas Deep Space Nine",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -4144,8 +4032,8 @@
     ]
   },
   {
-    "id": "ch-38",
-    "channelNumber": 38,
+    "id": "ch-37",
+    "channelNumber": 37,
     "name": "Jornada nas Estrelas Voyager",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -4256,8 +4144,8 @@
     ]
   },
   {
-    "id": "ch-39",
-    "channelNumber": 39,
+    "id": "ch-38",
+    "channelNumber": 38,
     "name": "Jovem Pan NEWS",
     "category": "noticias",
     "subcategory": "Cobertura Ao Vivo 24h",
@@ -4368,8 +4256,8 @@
     ]
   },
   {
-    "id": "ch-40",
-    "channelNumber": 40,
+    "id": "ch-39",
+    "channelNumber": 39,
     "name": "Kenan & Kel",
     "category": "infantil",
     "subcategory": "Clássicos da Infância",
@@ -4480,8 +4368,8 @@
     ]
   },
   {
-    "id": "ch-41",
-    "channelNumber": 41,
+    "id": "ch-40",
+    "channelNumber": 40,
     "name": "MacGyver",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -4592,8 +4480,8 @@
     ]
   },
   {
-    "id": "ch-42",
-    "channelNumber": 42,
+    "id": "ch-41",
+    "channelNumber": 41,
     "name": "Mais MasterChef Brasil",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -4704,8 +4592,8 @@
     ]
   },
   {
-    "id": "ch-43",
-    "channelNumber": 43,
+    "id": "ch-42",
+    "channelNumber": 42,
     "name": "MasterChef",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -4816,8 +4704,8 @@
     ]
   },
   {
-    "id": "ch-44",
-    "channelNumber": 44,
+    "id": "ch-43",
+    "channelNumber": 43,
     "name": "MasterChef Brasil Profissionais",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -4928,8 +4816,8 @@
     ]
   },
   {
-    "id": "ch-45",
-    "channelNumber": 45,
+    "id": "ch-44",
+    "channelNumber": 44,
     "name": "Mistérios sem Solução",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -5040,8 +4928,8 @@
     ]
   },
   {
-    "id": "ch-46",
-    "channelNumber": 46,
+    "id": "ch-45",
+    "channelNumber": 45,
     "name": "Moranguinho",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -5152,8 +5040,8 @@
     ]
   },
   {
-    "id": "ch-47",
-    "channelNumber": 47,
+    "id": "ch-46",
+    "channelNumber": 46,
     "name": "MTV Are you the One?",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5264,8 +5152,8 @@
     ]
   },
   {
-    "id": "ch-48",
-    "channelNumber": 48,
+    "id": "ch-47",
+    "channelNumber": 47,
     "name": "MTV Biggest Pop",
     "category": "entretenimento",
     "subcategory": "Música & Shows",
@@ -5376,8 +5264,8 @@
     ]
   },
   {
-    "id": "ch-49",
-    "channelNumber": 49,
+    "id": "ch-48",
+    "channelNumber": 48,
     "name": "MTV Catfish",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5488,8 +5376,8 @@
     ]
   },
   {
-    "id": "ch-50",
-    "channelNumber": 50,
+    "id": "ch-49",
+    "channelNumber": 49,
     "name": "MTV Com o Ex",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5600,8 +5488,8 @@
     ]
   },
   {
-    "id": "ch-51",
-    "channelNumber": 51,
+    "id": "ch-50",
+    "channelNumber": 50,
     "name": "MTV Dating",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5712,8 +5600,8 @@
     ]
   },
   {
-    "id": "ch-52",
-    "channelNumber": 52,
+    "id": "ch-51",
+    "channelNumber": 51,
     "name": "MTV Jovens e Mães",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5824,8 +5712,8 @@
     ]
   },
   {
-    "id": "ch-53",
-    "channelNumber": 53,
+    "id": "ch-52",
+    "channelNumber": 52,
     "name": "MTV Brasil",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -5936,8 +5824,8 @@
     ]
   },
   {
-    "id": "ch-54",
-    "channelNumber": 54,
+    "id": "ch-53",
+    "channelNumber": 53,
     "name": "MTV Reality",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -6048,8 +5936,8 @@
     ]
   },
   {
-    "id": "ch-55",
-    "channelNumber": 55,
+    "id": "ch-54",
+    "channelNumber": 54,
     "name": "MTV Rocks",
     "category": "entretenimento",
     "subcategory": "Música & Shows",
@@ -6160,8 +6048,8 @@
     ]
   },
   {
-    "id": "ch-56",
-    "channelNumber": 56,
+    "id": "ch-55",
+    "channelNumber": 55,
     "name": "MTV Rupaul's Drag Race",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -6272,8 +6160,8 @@
     ]
   },
   {
-    "id": "ch-57",
-    "channelNumber": 57,
+    "id": "ch-56",
+    "channelNumber": 56,
     "name": "MTV Shore",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -6384,8 +6272,8 @@
     ]
   },
   {
-    "id": "ch-58",
-    "channelNumber": 58,
+    "id": "ch-57",
+    "channelNumber": 57,
     "name": "Naruto",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -6496,8 +6384,8 @@
     ]
   },
   {
-    "id": "ch-59",
-    "channelNumber": 59,
+    "id": "ch-58",
+    "channelNumber": 58,
     "name": "Naruto Shippuden",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -6608,8 +6496,8 @@
     ]
   },
   {
-    "id": "ch-60",
-    "channelNumber": 60,
+    "id": "ch-59",
+    "channelNumber": 59,
     "name": "NatureTime",
     "category": "entretenimento",
     "subcategory": "Mundo Animal & Pets",
@@ -6720,8 +6608,8 @@
     ]
   },
   {
-    "id": "ch-61",
-    "channelNumber": 61,
+    "id": "ch-60",
+    "channelNumber": 60,
     "name": "NCIS",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -6832,8 +6720,8 @@
     ]
   },
   {
-    "id": "ch-62",
-    "channelNumber": 62,
+    "id": "ch-61",
+    "channelNumber": 61,
     "name": "Nick Jr. Club",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -6944,8 +6832,8 @@
     ]
   },
   {
-    "id": "ch-63",
-    "channelNumber": 63,
+    "id": "ch-62",
+    "channelNumber": 62,
     "name": "Nickelodeon Clássico",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -7056,8 +6944,8 @@
     ]
   },
   {
-    "id": "ch-64",
-    "channelNumber": 64,
+    "id": "ch-63",
+    "channelNumber": 63,
     "name": "Nickelodeon iCarly",
     "category": "infantil",
     "subcategory": "Clássicos da Infância",
@@ -7168,8 +7056,8 @@
     ]
   },
   {
-    "id": "ch-65",
-    "channelNumber": 65,
+    "id": "ch-64",
+    "channelNumber": 64,
     "name": "Nickelodeon Teen",
     "category": "infantil",
     "subcategory": "Clássicos da Infância",
@@ -7280,8 +7168,8 @@
     ]
   },
   {
-    "id": "ch-66",
-    "channelNumber": 66,
+    "id": "ch-65",
+    "channelNumber": 65,
     "name": "Nickelodeon Toons",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -7392,8 +7280,8 @@
     ]
   },
   {
-    "id": "ch-67",
-    "channelNumber": 67,
+    "id": "ch-66",
+    "channelNumber": 66,
     "name": "Numbers",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -7504,8 +7392,8 @@
     ]
   },
   {
-    "id": "ch-68",
-    "channelNumber": 68,
+    "id": "ch-67",
+    "channelNumber": 67,
     "name": "O Encantador de Cães",
     "category": "entretenimento",
     "subcategory": "Mundo Animal & Pets",
@@ -7616,8 +7504,8 @@
     ]
   },
   {
-    "id": "ch-69",
-    "channelNumber": 69,
+    "id": "ch-68",
+    "channelNumber": 68,
     "name": "O Homem que veio do Céu",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -7728,8 +7616,8 @@
     ]
   },
   {
-    "id": "ch-70",
-    "channelNumber": 70,
+    "id": "ch-69",
+    "channelNumber": 69,
     "name": "O Reino Infantil",
     "category": "infantil",
     "subcategory": "Pré-Escolar & Educativo",
@@ -7840,8 +7728,8 @@
     ]
   },
   {
-    "id": "ch-71",
-    "channelNumber": 71,
+    "id": "ch-70",
+    "channelNumber": 70,
     "name": "Oggy e as Baratas Tontas",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -7952,8 +7840,8 @@
     ]
   },
   {
-    "id": "ch-72",
-    "channelNumber": 72,
+    "id": "ch-71",
+    "channelNumber": 71,
     "name": "One Piece",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -8064,8 +7952,8 @@
     ]
   },
   {
-    "id": "ch-73",
-    "channelNumber": 73,
+    "id": "ch-72",
+    "channelNumber": 72,
     "name": "Os Arquivos do FBI",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -8176,8 +8064,8 @@
     ]
   },
   {
-    "id": "ch-74",
-    "channelNumber": 74,
+    "id": "ch-73",
+    "channelNumber": 73,
     "name": "Os Padrinhos Mágicos",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -8288,8 +8176,8 @@
     ]
   },
   {
-    "id": "ch-75",
-    "channelNumber": 75,
+    "id": "ch-74",
+    "channelNumber": 74,
     "name": "Os Smurfs",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -8400,8 +8288,8 @@
     ]
   },
   {
-    "id": "ch-76",
-    "channelNumber": 76,
+    "id": "ch-75",
+    "channelNumber": 75,
     "name": "Pegadinhas Just for Laughs",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -8512,8 +8400,8 @@
     ]
   },
   {
-    "id": "ch-77",
-    "channelNumber": 77,
+    "id": "ch-76",
+    "channelNumber": 76,
     "name": "PFL MMA",
     "category": "esportes",
     "subcategory": "Lutas & Artes Marciais",
@@ -8624,8 +8512,8 @@
     ]
   },
   {
-    "id": "ch-78",
-    "channelNumber": 78,
+    "id": "ch-77",
+    "channelNumber": 77,
     "name": "Aliens & Ufologia",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -8736,8 +8624,8 @@
     ]
   },
   {
-    "id": "ch-79",
-    "channelNumber": 79,
+    "id": "ch-78",
+    "channelNumber": 78,
     "name": "Animais TV",
     "category": "entretenimento",
     "subcategory": "Mundo Animal & Pets",
@@ -8848,8 +8736,8 @@
     ]
   },
   {
-    "id": "ch-80",
-    "channelNumber": 80,
+    "id": "ch-79",
+    "channelNumber": 79,
     "name": "Anime TV",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -8960,8 +8848,8 @@
     ]
   },
   {
-    "id": "ch-81",
-    "channelNumber": 81,
+    "id": "ch-80",
+    "channelNumber": 80,
     "name": "Anime Ação",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -9072,8 +8960,8 @@
     ]
   },
   {
-    "id": "ch-82",
-    "channelNumber": 82,
+    "id": "ch-81",
+    "channelNumber": 81,
     "name": "Bang Bang TV",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -9184,8 +9072,8 @@
     ]
   },
   {
-    "id": "ch-83",
-    "channelNumber": 83,
+    "id": "ch-82",
+    "channelNumber": 82,
     "name": "Canal UOL",
     "category": "noticias",
     "subcategory": "Cobertura Ao Vivo 24h",
@@ -9296,8 +9184,8 @@
     ]
   },
   {
-    "id": "ch-84",
-    "channelNumber": 84,
+    "id": "ch-83",
+    "channelNumber": 83,
     "name": "Cine Clássicos",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -9408,8 +9296,8 @@
     ]
   },
   {
-    "id": "ch-85",
-    "channelNumber": 85,
+    "id": "ch-84",
+    "channelNumber": 84,
     "name": "Cine Comédia",
     "category": "filmes-series",
     "subcategory": "Comédia & Família",
@@ -9520,8 +9408,8 @@
     ]
   },
   {
-    "id": "ch-86",
-    "channelNumber": 86,
+    "id": "ch-85",
+    "channelNumber": 85,
     "name": "Cine Comédia Romântica",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -9632,8 +9520,8 @@
     ]
   },
   {
-    "id": "ch-87",
-    "channelNumber": 87,
+    "id": "ch-86",
+    "channelNumber": 86,
     "name": "Cine Crime",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -9744,8 +9632,8 @@
     ]
   },
   {
-    "id": "ch-88",
-    "channelNumber": 88,
+    "id": "ch-87",
+    "channelNumber": 87,
     "name": "Cine Drama",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -9856,8 +9744,8 @@
     ]
   },
   {
-    "id": "ch-89",
-    "channelNumber": 89,
+    "id": "ch-88",
+    "channelNumber": 88,
     "name": "Cine Família",
     "category": "filmes-series",
     "subcategory": "Comédia & Família",
@@ -9968,8 +9856,8 @@
     ]
   },
   {
-    "id": "ch-90",
-    "channelNumber": 90,
+    "id": "ch-89",
+    "channelNumber": 89,
     "name": "Cine Inspiração",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -10080,8 +9968,8 @@
     ]
   },
   {
-    "id": "ch-91",
-    "channelNumber": 91,
+    "id": "ch-90",
+    "channelNumber": 90,
     "name": "Cine Romance",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -10192,8 +10080,8 @@
     ]
   },
   {
-    "id": "ch-92",
-    "channelNumber": 92,
+    "id": "ch-91",
+    "channelNumber": 91,
     "name": "Cine Sucessos",
     "category": "filmes-series",
     "subcategory": "Cinema & Filmes",
@@ -10304,8 +10192,8 @@
     ]
   },
   {
-    "id": "ch-93",
-    "channelNumber": 93,
+    "id": "ch-92",
+    "channelNumber": 92,
     "name": "Cine Terror",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -10416,8 +10304,8 @@
     ]
   },
   {
-    "id": "ch-94",
-    "channelNumber": 94,
+    "id": "ch-93",
+    "channelNumber": 93,
     "name": "Cozinha TV",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -10528,8 +10416,8 @@
     ]
   },
   {
-    "id": "ch-95",
-    "channelNumber": 95,
+    "id": "ch-94",
+    "channelNumber": 94,
     "name": "Desenhos Clássicos",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -10640,8 +10528,8 @@
     ]
   },
   {
-    "id": "ch-96",
-    "channelNumber": 96,
+    "id": "ch-95",
+    "channelNumber": 95,
     "name": "Esportes TV",
     "category": "esportes",
     "subcategory": "Futebol & Variedades",
@@ -10752,8 +10640,8 @@
     ]
   },
   {
-    "id": "ch-97",
-    "channelNumber": 97,
+    "id": "ch-96",
+    "channelNumber": 96,
     "name": "Ficção Científica",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -10864,8 +10752,8 @@
     ]
   },
   {
-    "id": "ch-98",
-    "channelNumber": 98,
+    "id": "ch-97",
+    "channelNumber": 97,
     "name": "Filmes Ação",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -10976,8 +10864,8 @@
     ]
   },
   {
-    "id": "ch-99",
-    "channelNumber": 99,
+    "id": "ch-98",
+    "channelNumber": 98,
     "name": "Filmes Aventura",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -11088,8 +10976,8 @@
     ]
   },
   {
-    "id": "ch-100",
-    "channelNumber": 100,
+    "id": "ch-99",
+    "channelNumber": 99,
     "name": "Filmes de Luta",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -11200,8 +11088,8 @@
     ]
   },
   {
-    "id": "ch-101",
-    "channelNumber": 101,
+    "id": "ch-100",
+    "channelNumber": 100,
     "name": "Filmes Nacionais",
     "category": "filmes-series",
     "subcategory": "Cinema & Filmes",
@@ -11312,8 +11200,8 @@
     ]
   },
   {
-    "id": "ch-102",
-    "channelNumber": 102,
+    "id": "ch-101",
+    "channelNumber": 101,
     "name": "História TV",
     "category": "tv-ao-vivo",
     "subcategory": "Cultura & Educação",
@@ -11424,8 +11312,8 @@
     ]
   },
   {
-    "id": "ch-103",
-    "channelNumber": 103,
+    "id": "ch-102",
+    "channelNumber": 102,
     "name": "Investigação TV",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -11536,8 +11424,8 @@
     ]
   },
   {
-    "id": "ch-104",
-    "channelNumber": 104,
+    "id": "ch-103",
+    "channelNumber": 103,
     "name": "Kids Junior",
     "category": "infantil",
     "subcategory": "Pré-Escolar & Educativo",
@@ -11648,120 +11536,8 @@
     ]
   },
   {
-    "id": "ch-105",
-    "channelNumber": 105,
-    "name": "Karaokê por Stingray",
-    "category": "entretenimento",
-    "subcategory": "Música & Shows",
-    "logo": "",
-    "tvgId": "KaraokeporStingray.us@BR",
-    "streams": [
-      {
-        "title": "Karaokê por Stingray (720P)",
-        "url": "https://jmp2.uk/plu-604b99d633a72b00078e05ad.m3u8",
-        "quality": "720P",
-        "referrer": null,
-        "userAgent": null
-      }
-    ],
-    "bestQuality": "720P",
-    "isAdultOrRestricted": false,
-    "minAgeRating": 0,
-    "description": "Transmissão ao vivo em 720P do canal Karaokê por Stingray. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
-    "epgSchedule": [
-      {
-        "id": "epg-0-karaokpo",
-        "title": "Madrugada Karaokê por Stingray",
-        "description": "Seleção contínua com os melhores momentos e episódios de Karaokê por Stingray.",
-        "startTime": "00:00",
-        "endTime": "03:00",
-        "startMinutes": 0,
-        "endMinutes": 180,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-1-karaokpo",
-        "title": "Maratona Especial: Karaokê por Stingray",
-        "description": "Transmissão ininterrupta em alta definição.",
-        "startTime": "03:00",
-        "endTime": "06:00",
-        "startMinutes": 180,
-        "endMinutes": 360,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-2-karaokpo",
-        "title": "Manhã Karaokê por Stingray",
-        "description": "Destaques da programação de Música & Shows para começar o dia.",
-        "startTime": "06:00",
-        "endTime": "09:00",
-        "startMinutes": 360,
-        "endMinutes": 540,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-3-karaokpo",
-        "title": "Sessão Karaokê por Stingray",
-        "description": "Programação principal ao vivo com áudio e imagem em alta definição.",
-        "startTime": "09:00",
-        "endTime": "12:00",
-        "startMinutes": 540,
-        "endMinutes": 720,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-4-karaokpo",
-        "title": "Especial da Tarde — Karaokê por Stingray",
-        "description": "Atrações selecionadas de Música & Shows no PlayTelas.",
-        "startTime": "12:00",
-        "endTime": "15:00",
-        "startMinutes": 720,
-        "endMinutes": 900,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-5-karaokpo",
-        "title": "Tarde Ao Vivo: Karaokê por Stingray",
-        "description": "Continuidade da grade oficial em streaming adaptativo.",
-        "startTime": "15:00",
-        "endTime": "18:00",
-        "startMinutes": 900,
-        "endMinutes": 1080,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-6-karaokpo",
-        "title": "Horário Nobre Karaokê por Stingray",
-        "description": "Os grandes destaques e estreias de Karaokê por Stingray.",
-        "startTime": "18:00",
-        "endTime": "21:00",
-        "startMinutes": 1080,
-        "endMinutes": 1260,
-        "rating": "12",
-        "category": "Música & Shows"
-      },
-      {
-        "id": "epg-7-karaokpo",
-        "title": "Noite Prime: Karaokê por Stingray",
-        "description": "Edição noturna especial de Música & Shows.",
-        "startTime": "21:00",
-        "endTime": "23:59",
-        "startMinutes": 1260,
-        "endMinutes": 1439,
-        "rating": "12",
-        "category": "Música & Shows"
-      }
-    ]
-  },
-  {
-    "id": "ch-106",
-    "channelNumber": 106,
+    "id": "ch-104",
+    "channelNumber": 104,
     "name": "KFOOD TV",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -11872,8 +11648,8 @@
     ]
   },
   {
-    "id": "ch-107",
-    "channelNumber": 107,
+    "id": "ch-105",
+    "channelNumber": 105,
     "name": "Kids TV",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -11984,8 +11760,8 @@
     ]
   },
   {
-    "id": "ch-108",
-    "channelNumber": 108,
+    "id": "ch-106",
+    "channelNumber": 106,
     "name": "Kids Club",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -12096,120 +11872,8 @@
     ]
   },
   {
-    "id": "ch-109",
-    "channelNumber": 109,
-    "name": "Minha Obsessão Favorita",
-    "category": "entretenimento",
-    "subcategory": "Variedades & Pop",
-    "logo": "",
-    "tvgId": "MinhaObsessaoFavorita.us@BR",
-    "streams": [
-      {
-        "title": "Minha Obsessão Favorita (HD)",
-        "url": "https://jmp2.uk/plu-61843f5e491af10007f7eefa.m3u8",
-        "quality": "HD",
-        "referrer": null,
-        "userAgent": null
-      }
-    ],
-    "bestQuality": "HD",
-    "isAdultOrRestricted": false,
-    "minAgeRating": 14,
-    "description": "Transmissão ao vivo em HD do canal Minha Obsessão Favorita. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
-    "epgSchedule": [
-      {
-        "id": "epg-0-minhaobs",
-        "title": "Madrugada Minha Obsessão Favorita",
-        "description": "Seleção contínua com os melhores momentos e episódios de Minha Obsessão Favorita.",
-        "startTime": "00:00",
-        "endTime": "03:00",
-        "startMinutes": 0,
-        "endMinutes": 180,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-1-minhaobs",
-        "title": "Maratona Especial: Minha Obsessão Favorita",
-        "description": "Transmissão ininterrupta em alta definição.",
-        "startTime": "03:00",
-        "endTime": "06:00",
-        "startMinutes": 180,
-        "endMinutes": 360,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-2-minhaobs",
-        "title": "Manhã Minha Obsessão Favorita",
-        "description": "Destaques da programação de Variedades & Pop para começar o dia.",
-        "startTime": "06:00",
-        "endTime": "09:00",
-        "startMinutes": 360,
-        "endMinutes": 540,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-3-minhaobs",
-        "title": "Sessão Minha Obsessão Favorita",
-        "description": "Programação principal ao vivo com áudio e imagem em alta definição.",
-        "startTime": "09:00",
-        "endTime": "12:00",
-        "startMinutes": 540,
-        "endMinutes": 720,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-4-minhaobs",
-        "title": "Especial da Tarde — Minha Obsessão Favorita",
-        "description": "Atrações selecionadas de Variedades & Pop no PlayTelas.",
-        "startTime": "12:00",
-        "endTime": "15:00",
-        "startMinutes": 720,
-        "endMinutes": 900,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-5-minhaobs",
-        "title": "Tarde Ao Vivo: Minha Obsessão Favorita",
-        "description": "Continuidade da grade oficial em streaming adaptativo.",
-        "startTime": "15:00",
-        "endTime": "18:00",
-        "startMinutes": 900,
-        "endMinutes": 1080,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-6-minhaobs",
-        "title": "Horário Nobre Minha Obsessão Favorita",
-        "description": "Os grandes destaques e estreias de Minha Obsessão Favorita.",
-        "startTime": "18:00",
-        "endTime": "21:00",
-        "startMinutes": 1080,
-        "endMinutes": 1260,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      },
-      {
-        "id": "epg-7-minhaobs",
-        "title": "Noite Prime: Minha Obsessão Favorita",
-        "description": "Edição noturna especial de Variedades & Pop.",
-        "startTime": "21:00",
-        "endTime": "23:59",
-        "startMinutes": 1260,
-        "endMinutes": 1439,
-        "rating": "14",
-        "category": "Variedades & Pop"
-      }
-    ]
-  },
-  {
-    "id": "ch-110",
-    "channelNumber": 110,
+    "id": "ch-107",
+    "channelNumber": 107,
     "name": "Mistérios TV",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -12320,8 +11984,8 @@
     ]
   },
   {
-    "id": "ch-111",
-    "channelNumber": 111,
+    "id": "ch-108",
+    "channelNumber": 108,
     "name": "MTV Classic",
     "category": "entretenimento",
     "subcategory": "Música & Shows",
@@ -12432,8 +12096,8 @@
     ]
   },
   {
-    "id": "ch-112",
-    "channelNumber": 112,
+    "id": "ch-109",
+    "channelNumber": 109,
     "name": "Natureza TV",
     "category": "entretenimento",
     "subcategory": "Mundo Animal & Pets",
@@ -12544,8 +12208,8 @@
     ]
   },
   {
-    "id": "ch-113",
-    "channelNumber": 113,
+    "id": "ch-110",
+    "channelNumber": 110,
     "name": "Negócio Fechado",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -12656,8 +12320,8 @@
     ]
   },
   {
-    "id": "ch-114",
-    "channelNumber": 114,
+    "id": "ch-111",
+    "channelNumber": 111,
     "name": "Netmovies",
     "category": "filmes-series",
     "subcategory": "Cinema & Filmes",
@@ -12768,8 +12432,8 @@
     ]
   },
   {
-    "id": "ch-115",
-    "channelNumber": 115,
+    "id": "ch-112",
+    "channelNumber": 112,
     "name": "Novelas TV",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -12880,8 +12544,8 @@
     ]
   },
   {
-    "id": "ch-116",
-    "channelNumber": 116,
+    "id": "ch-113",
+    "channelNumber": 113,
     "name": "Paisagens por Stingray",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -12992,8 +12656,8 @@
     ]
   },
   {
-    "id": "ch-117",
-    "channelNumber": 117,
+    "id": "ch-114",
+    "channelNumber": 114,
     "name": "Policial TV",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -13104,8 +12768,8 @@
     ]
   },
   {
-    "id": "ch-118",
-    "channelNumber": 118,
+    "id": "ch-115",
+    "channelNumber": 115,
     "name": "Record News",
     "category": "noticias",
     "subcategory": "Cobertura Ao Vivo 24h",
@@ -13216,8 +12880,8 @@
     ]
   },
   {
-    "id": "ch-119",
-    "channelNumber": 119,
+    "id": "ch-116",
+    "channelNumber": 116,
     "name": "Retrô TV",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -13328,8 +12992,8 @@
     ]
   },
   {
-    "id": "ch-120",
-    "channelNumber": 120,
+    "id": "ch-117",
+    "channelNumber": 117,
     "name": "Séries Ação",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -13440,8 +13104,8 @@
     ]
   },
   {
-    "id": "ch-121",
-    "channelNumber": 121,
+    "id": "ch-118",
+    "channelNumber": 118,
     "name": "Séries Comédia",
     "category": "filmes-series",
     "subcategory": "Comédia & Família",
@@ -13552,8 +13216,8 @@
     ]
   },
   {
-    "id": "ch-122",
-    "channelNumber": 122,
+    "id": "ch-119",
+    "channelNumber": 119,
     "name": "Séries Criminais",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -13664,8 +13328,8 @@
     ]
   },
   {
-    "id": "ch-123",
-    "channelNumber": 123,
+    "id": "ch-120",
+    "channelNumber": 120,
     "name": "Séries Drama",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -13776,8 +13440,8 @@
     ]
   },
   {
-    "id": "ch-124",
-    "channelNumber": 124,
+    "id": "ch-121",
+    "channelNumber": 121,
     "name": "Séries Novelescas",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -13888,8 +13552,8 @@
     ]
   },
   {
-    "id": "ch-125",
-    "channelNumber": 125,
+    "id": "ch-122",
+    "channelNumber": 122,
     "name": "Séries Sci-Fi",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -14000,8 +13664,8 @@
     ]
   },
   {
-    "id": "ch-126",
-    "channelNumber": 126,
+    "id": "ch-123",
+    "channelNumber": 123,
     "name": "Shows por Stingray",
     "category": "entretenimento",
     "subcategory": "Música & Shows",
@@ -14112,8 +13776,8 @@
     ]
   },
   {
-    "id": "ch-127",
-    "channelNumber": 127,
+    "id": "ch-124",
+    "channelNumber": 124,
     "name": "Star Trek",
     "category": "filmes-series",
     "subcategory": "Cult & Clássicos",
@@ -14224,8 +13888,8 @@
     ]
   },
   {
-    "id": "ch-128",
-    "channelNumber": 128,
+    "id": "ch-125",
+    "channelNumber": 125,
     "name": "Terror Trash",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -14336,8 +14000,8 @@
     ]
   },
   {
-    "id": "ch-129",
-    "channelNumber": 129,
+    "id": "ch-126",
+    "channelNumber": 126,
     "name": "Turbo TV",
     "category": "esportes",
     "subcategory": "Grandes Ligas & Ao Vivo",
@@ -14448,8 +14112,8 @@
     ]
   },
   {
-    "id": "ch-130",
-    "channelNumber": 130,
+    "id": "ch-127",
+    "channelNumber": 127,
     "name": "Viagens TV",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -14560,8 +14224,8 @@
     ]
   },
   {
-    "id": "ch-131",
-    "channelNumber": 131,
+    "id": "ch-128",
+    "channelNumber": 128,
     "name": "Vida Real TV",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -14672,8 +14336,8 @@
     ]
   },
   {
-    "id": "ch-132",
-    "channelNumber": 132,
+    "id": "ch-129",
+    "channelNumber": 129,
     "name": "Pokémon",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -14784,8 +14448,8 @@
     ]
   },
   {
-    "id": "ch-133",
-    "channelNumber": 133,
+    "id": "ch-130",
+    "channelNumber": 130,
     "name": "Popeye",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -14896,8 +14560,8 @@
     ]
   },
   {
-    "id": "ch-134",
-    "channelNumber": 134,
+    "id": "ch-131",
+    "channelNumber": 131,
     "name": "PORTATV",
     "category": "tv-ao-vivo",
     "subcategory": "Cultura & Educação",
@@ -15008,8 +14672,8 @@
     ]
   },
   {
-    "id": "ch-135",
-    "channelNumber": 135,
+    "id": "ch-132",
+    "channelNumber": 132,
     "name": "Pronto-socorro: Histórias De Emergência",
     "category": "filmes-series",
     "subcategory": "Drama & Romance",
@@ -15120,8 +14784,8 @@
     ]
   },
   {
-    "id": "ch-136",
-    "channelNumber": 136,
+    "id": "ch-133",
+    "channelNumber": 133,
     "name": "RACER Brasil",
     "category": "esportes",
     "subcategory": "Grandes Ligas & Ao Vivo",
@@ -15232,120 +14896,8 @@
     ]
   },
   {
-    "id": "ch-137",
-    "channelNumber": 137,
-    "name": "Realmadrid TV",
-    "category": "esportes",
-    "subcategory": "Futebol & Variedades",
-    "logo": "",
-    "tvgId": "RealMadridTV.es@SD",
-    "streams": [
-      {
-        "title": "Realmadrid TV (720P)",
-        "url": "https://jmp2.uk/plu-63dac28760bc8f0008a7654b.m3u8",
-        "quality": "720P",
-        "referrer": null,
-        "userAgent": null
-      }
-    ],
-    "bestQuality": "720P",
-    "isAdultOrRestricted": false,
-    "minAgeRating": 0,
-    "description": "Transmissão ao vivo em 720P do canal Realmadrid TV. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
-    "epgSchedule": [
-      {
-        "id": "epg-0-realmadr",
-        "title": "Madrugada Realmadrid TV",
-        "description": "Seleção contínua com os melhores momentos e episódios de Realmadrid TV.",
-        "startTime": "00:00",
-        "endTime": "03:00",
-        "startMinutes": 0,
-        "endMinutes": 180,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-1-realmadr",
-        "title": "Maratona Especial: Realmadrid TV",
-        "description": "Transmissão ininterrupta em alta definição.",
-        "startTime": "03:00",
-        "endTime": "06:00",
-        "startMinutes": 180,
-        "endMinutes": 360,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-2-realmadr",
-        "title": "Manhã Realmadrid TV",
-        "description": "Destaques da programação de Futebol & Variedades para começar o dia.",
-        "startTime": "06:00",
-        "endTime": "09:00",
-        "startMinutes": 360,
-        "endMinutes": 540,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-3-realmadr",
-        "title": "Sessão Realmadrid TV",
-        "description": "Programação principal ao vivo com áudio e imagem em alta definição.",
-        "startTime": "09:00",
-        "endTime": "12:00",
-        "startMinutes": 540,
-        "endMinutes": 720,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-4-realmadr",
-        "title": "Especial da Tarde — Realmadrid TV",
-        "description": "Atrações selecionadas de Futebol & Variedades no PlayTelas.",
-        "startTime": "12:00",
-        "endTime": "15:00",
-        "startMinutes": 720,
-        "endMinutes": 900,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-5-realmadr",
-        "title": "Tarde Ao Vivo: Realmadrid TV",
-        "description": "Continuidade da grade oficial em streaming adaptativo.",
-        "startTime": "15:00",
-        "endTime": "18:00",
-        "startMinutes": 900,
-        "endMinutes": 1080,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-6-realmadr",
-        "title": "Horário Nobre Realmadrid TV",
-        "description": "Os grandes destaques e estreias de Realmadrid TV.",
-        "startTime": "18:00",
-        "endTime": "21:00",
-        "startMinutes": 1080,
-        "endMinutes": 1260,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      },
-      {
-        "id": "epg-7-realmadr",
-        "title": "Noite Prime: Realmadrid TV",
-        "description": "Edição noturna especial de Futebol & Variedades.",
-        "startTime": "21:00",
-        "endTime": "23:59",
-        "startMinutes": 1260,
-        "endMinutes": 1439,
-        "rating": "Livre",
-        "category": "Futebol & Variedades"
-      }
-    ]
-  },
-  {
-    "id": "ch-138",
-    "channelNumber": 138,
+    "id": "ch-134",
+    "channelNumber": 134,
     "name": "Red Bull TV BR",
     "category": "esportes",
     "subcategory": "Grandes Ligas & Ao Vivo",
@@ -15456,8 +15008,8 @@
     ]
   },
   {
-    "id": "ch-139",
-    "channelNumber": 139,
+    "id": "ch-135",
+    "channelNumber": 135,
     "name": "Rookie Blue",
     "category": "filmes-series",
     "subcategory": "Super Estreias",
@@ -15568,8 +15120,8 @@
     ]
   },
   {
-    "id": "ch-140",
-    "channelNumber": 140,
+    "id": "ch-136",
+    "channelNumber": 136,
     "name": "Runtime",
     "category": "filmes-series",
     "subcategory": "Cinema & Filmes",
@@ -15680,8 +15232,8 @@
     ]
   },
   {
-    "id": "ch-141",
-    "channelNumber": 141,
+    "id": "ch-137",
+    "channelNumber": 137,
     "name": "Salon Line",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -15792,8 +15344,8 @@
     ]
   },
   {
-    "id": "ch-142",
-    "channelNumber": 142,
+    "id": "ch-138",
+    "channelNumber": 138,
     "name": "SFT Combat",
     "category": "esportes",
     "subcategory": "Lutas & Artes Marciais",
@@ -15904,8 +15456,8 @@
     ]
   },
   {
-    "id": "ch-143",
-    "channelNumber": 143,
+    "id": "ch-139",
+    "channelNumber": 139,
     "name": "Smithsonian Channel",
     "category": "tv-ao-vivo",
     "subcategory": "Cultura & Educação",
@@ -16016,8 +15568,8 @@
     ]
   },
   {
-    "id": "ch-144",
-    "channelNumber": 144,
+    "id": "ch-140",
+    "channelNumber": 140,
     "name": "Sony One Shark Tank Brasil",
     "category": "entretenimento",
     "subcategory": "Variedades & Pop",
@@ -16128,8 +15680,8 @@
     ]
   },
   {
-    "id": "ch-145",
-    "channelNumber": 145,
+    "id": "ch-141",
+    "channelNumber": 141,
     "name": "South Park: Coleção Cartman",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -16240,8 +15792,8 @@
     ]
   },
   {
-    "id": "ch-146",
-    "channelNumber": 146,
+    "id": "ch-142",
+    "channelNumber": 142,
     "name": "South Park: Coleção Kenny",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -16352,8 +15904,8 @@
     ]
   },
   {
-    "id": "ch-147",
-    "channelNumber": 147,
+    "id": "ch-143",
+    "channelNumber": 143,
     "name": "South Park: Coleção Kyle",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -16464,8 +16016,8 @@
     ]
   },
   {
-    "id": "ch-148",
-    "channelNumber": 148,
+    "id": "ch-144",
+    "channelNumber": 144,
     "name": "South Park: Coleção Stan",
     "category": "entretenimento",
     "subcategory": "Humor & Stand-Up",
@@ -16576,8 +16128,8 @@
     ]
   },
   {
-    "id": "ch-149",
-    "channelNumber": 149,
+    "id": "ch-145",
+    "channelNumber": 145,
     "name": "Super Onze",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -16688,8 +16240,8 @@
     ]
   },
   {
-    "id": "ch-150",
-    "channelNumber": 150,
+    "id": "ch-146",
+    "channelNumber": 146,
     "name": "Tastemade",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -16800,8 +16352,8 @@
     ]
   },
   {
-    "id": "ch-151",
-    "channelNumber": 151,
+    "id": "ch-147",
+    "channelNumber": 147,
     "name": "Tastemade Casa",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -16912,8 +16464,8 @@
     ]
   },
   {
-    "id": "ch-152",
-    "channelNumber": 152,
+    "id": "ch-148",
+    "channelNumber": 148,
     "name": "Tastemade Viagem",
     "category": "entretenimento",
     "subcategory": "Culinária, Arte & Viagens",
@@ -17024,120 +16576,8 @@
     ]
   },
   {
-    "id": "ch-153",
-    "channelNumber": 153,
-    "name": "Teletubbies",
-    "category": "infantil",
-    "subcategory": "Pré-Escolar & Educativo",
-    "logo": "",
-    "tvgId": "Teletubbies.uk@SD",
-    "streams": [
-      {
-        "title": "Teletubbies (HD)",
-        "url": "https://jmp2.uk/plu-64e50055286f6b000838c067.m3u8",
-        "quality": "HD",
-        "referrer": null,
-        "userAgent": null
-      }
-    ],
-    "bestQuality": "HD",
-    "isAdultOrRestricted": false,
-    "minAgeRating": 0,
-    "description": "Transmissão ao vivo em HD do canal Teletubbies. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
-    "epgSchedule": [
-      {
-        "id": "epg-0-teletubb",
-        "title": "Madrugada Teletubbies",
-        "description": "Seleção contínua com os melhores momentos e episódios de Teletubbies.",
-        "startTime": "00:00",
-        "endTime": "03:00",
-        "startMinutes": 0,
-        "endMinutes": 180,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-1-teletubb",
-        "title": "Maratona Especial: Teletubbies",
-        "description": "Transmissão ininterrupta em alta definição.",
-        "startTime": "03:00",
-        "endTime": "06:00",
-        "startMinutes": 180,
-        "endMinutes": 360,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-2-teletubb",
-        "title": "Manhã Teletubbies",
-        "description": "Destaques da programação de Pré-Escolar & Educativo para começar o dia.",
-        "startTime": "06:00",
-        "endTime": "09:00",
-        "startMinutes": 360,
-        "endMinutes": 540,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-3-teletubb",
-        "title": "Sessão Teletubbies",
-        "description": "Programação principal ao vivo com áudio e imagem em alta definição.",
-        "startTime": "09:00",
-        "endTime": "12:00",
-        "startMinutes": 540,
-        "endMinutes": 720,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-4-teletubb",
-        "title": "Especial da Tarde — Teletubbies",
-        "description": "Atrações selecionadas de Pré-Escolar & Educativo no PlayTelas.",
-        "startTime": "12:00",
-        "endTime": "15:00",
-        "startMinutes": 720,
-        "endMinutes": 900,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-5-teletubb",
-        "title": "Tarde Ao Vivo: Teletubbies",
-        "description": "Continuidade da grade oficial em streaming adaptativo.",
-        "startTime": "15:00",
-        "endTime": "18:00",
-        "startMinutes": 900,
-        "endMinutes": 1080,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-6-teletubb",
-        "title": "Horário Nobre Teletubbies",
-        "description": "Os grandes destaques e estreias de Teletubbies.",
-        "startTime": "18:00",
-        "endTime": "21:00",
-        "startMinutes": 1080,
-        "endMinutes": 1260,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      },
-      {
-        "id": "epg-7-teletubb",
-        "title": "Noite Prime: Teletubbies",
-        "description": "Edição noturna especial de Pré-Escolar & Educativo.",
-        "startTime": "21:00",
-        "endTime": "23:59",
-        "startMinutes": 1260,
-        "endMinutes": 1439,
-        "rating": "Livre",
-        "category": "Pré-Escolar & Educativo"
-      }
-    ]
-  },
-  {
-    "id": "ch-154",
-    "channelNumber": 154,
+    "id": "ch-149",
+    "channelNumber": 149,
     "name": "The Pet Collective",
     "category": "entretenimento",
     "subcategory": "Mundo Animal & Pets",
@@ -17248,8 +16688,8 @@
     ]
   },
   {
-    "id": "ch-155",
-    "channelNumber": 155,
+    "id": "ch-150",
+    "channelNumber": 150,
     "name": "The Walking Dead by AMC",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -17360,8 +16800,8 @@
     ]
   },
   {
-    "id": "ch-156",
-    "channelNumber": 156,
+    "id": "ch-151",
+    "channelNumber": 151,
     "name": "TikTok Radio Brasil",
     "category": "entretenimento",
     "subcategory": "Música & Shows",
@@ -17472,8 +16912,8 @@
     ]
   },
   {
-    "id": "ch-157",
-    "channelNumber": 157,
+    "id": "ch-152",
+    "channelNumber": 152,
     "name": "Times Brasil | CNBC",
     "category": "noticias",
     "subcategory": "Economia & Política",
@@ -17584,8 +17024,8 @@
     ]
   },
   {
-    "id": "ch-158",
-    "channelNumber": 158,
+    "id": "ch-153",
+    "channelNumber": 153,
     "name": "Tokusato",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",
@@ -17696,8 +17136,8 @@
     ]
   },
   {
-    "id": "ch-159",
-    "channelNumber": 159,
+    "id": "ch-154",
+    "channelNumber": 154,
     "name": "Top Barça",
     "category": "esportes",
     "subcategory": "Futebol & Variedades",
@@ -17808,8 +17248,8 @@
     ]
   },
   {
-    "id": "ch-160",
-    "channelNumber": 160,
+    "id": "ch-155",
+    "channelNumber": 155,
     "name": "Turma da Mônica",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -17920,8 +17360,8 @@
     ]
   },
   {
-    "id": "ch-161",
-    "channelNumber": 161,
+    "id": "ch-156",
+    "channelNumber": 156,
     "name": "TV Cultura",
     "category": "tv-ao-vivo",
     "subcategory": "Cultura & Educação",
@@ -18032,8 +17472,8 @@
     ]
   },
   {
-    "id": "ch-162",
-    "channelNumber": 162,
+    "id": "ch-157",
+    "channelNumber": 157,
     "name": "UFC",
     "category": "esportes",
     "subcategory": "Lutas & Artes Marciais",
@@ -18144,8 +17584,8 @@
     ]
   },
   {
-    "id": "ch-163",
-    "channelNumber": 163,
+    "id": "ch-158",
+    "channelNumber": 158,
     "name": "World Poker Tour",
     "category": "esportes",
     "subcategory": "Grandes Ligas & Ao Vivo",
@@ -18256,8 +17696,8 @@
     ]
   },
   {
-    "id": "ch-164",
-    "channelNumber": 164,
+    "id": "ch-159",
+    "channelNumber": 159,
     "name": "Yu-Gi-Oh",
     "category": "infantil",
     "subcategory": "Desenhos & Animação",
@@ -18368,8 +17808,8 @@
     ]
   },
   {
-    "id": "ch-165",
-    "channelNumber": 165,
+    "id": "ch-160",
+    "channelNumber": 160,
     "name": "Z Nation",
     "category": "filmes-series",
     "subcategory": "Ação & Adrenalina",

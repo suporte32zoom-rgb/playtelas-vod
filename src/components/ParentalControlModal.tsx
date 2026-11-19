@@ -200,7 +200,7 @@ export const ParentalControlModal: React.FC<ParentalControlModalProps> = ({
                   </h4>
                 </div>
                 <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  Acesso irrestrito a todos os 165 canais ao vivo, filmes de ação, séries e noticiários. Canais com cadeado individual ainda solicitam o PIN.
+                  Acesso irrestrito a todos os 160 canais ao vivo, filmes de ação, séries e noticiários. Canais com cadeado individual ainda solicitam o PIN.
                 </p>
               </div>
             </div>

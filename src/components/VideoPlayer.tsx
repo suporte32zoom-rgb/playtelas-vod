@@ -69,6 +69,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [currentStreamIndex, setCurrentStreamIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isCorsError, setIsCorsError] = useState<boolean>(false);
+  const [proxyInput, setProxyInput] = useState<string>(() => {
+    try {
+      return localStorage.getItem('playtelas_hls_proxy') || import.meta.env.VITE_HLS_PROXY_URL || '';
+    } catch {
+      return import.meta.env.VITE_HLS_PROXY_URL || '';
+    }
+  });
   const [sleepTimerMinutes, setSleepTimerMinutes] = useState<number | null>(null);
   const [qualityLevels, setQualityLevels] = useState<{ id: number; name: string }[]>([]);
   const [currentQuality, setCurrentQuality] = useState<number>(-1); // -1 = Auto
@@ -76,6 +84,37 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const currentProgram = getCurrentProgram(channel);
   const progressPercent = getProgramProgress(currentProgram);
+
+  // Sync optional ?proxy= query param to localStorage
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const paramProxy = params.get('proxy');
+      if (paramProxy !== null) {
+        const cleaned = paramProxy.trim().replace(/[/?]+$/, '');
+        if (cleaned) {
+          localStorage.setItem('playtelas_hls_proxy', cleaned);
+          setProxyInput(cleaned);
+        } else {
+          localStorage.removeItem('playtelas_hls_proxy');
+          setProxyInput('');
+        }
+      }
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const getActiveProxyUrl = useCallback((): string => {
+    try {
+      const saved = localStorage.getItem('playtelas_hls_proxy');
+      if (saved && saved.trim()) return saved.trim().replace(/[/?]+$/, '');
+    } catch {
+      // ignore
+    }
+    const envProxy = import.meta.env.VITE_HLS_PROXY_URL;
+    return envProxy ? String(envProxy).trim().replace(/[/?]+$/, '') : '';
+  }, []);
 
   // Initialize Web Audio Gain Node for Volume Boost (+200%)
   const setupAudioContext = useCallback(() => {
@@ -144,6 +183,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
     setIsLoading(true);
     setErrorMsg(null);
+    setIsCorsError(false);
     attemptedIndicesRef.current.add(streamIdx);
 
     // Destroy existing Hls instance
@@ -152,14 +192,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       hlsRef.current = null;
     }
 
-    const tryNativePlayback = () => {
+    const activeProxy = getActiveProxyUrl();
+    const resolvedStreamUrl = activeProxy
+      ? `${activeProxy}${activeProxy.includes('?') ? '&' : '?'}url=${encodeURIComponent(streamUrl)}`
+      : streamUrl;
+
+    const tryNativePlayback = (nativeUrl: string = streamUrl) => {
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
-      video.src = streamUrl;
+      video.src = nativeUrl;
       const onLoaded = () => {
         setIsLoading(false);
+        setErrorMsg(null);
+        setIsCorsError(false);
         const p = video.play();
         if (p !== undefined) {
           p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
@@ -182,17 +229,35 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         manifestLoadingTimeOut: 12000,
         levelLoadingTimeOut: 12000,
         fragLoadingTimeOut: 15000,
+        manifestLoadPolicy: {
+          default: {
+            maxTimeToFirstByteMs: 12000,
+            maxLoadTimeMs: 15000,
+            timeoutRetry: {
+              maxNumRetry: 1,
+              retryDelayMs: 1000,
+              maxRetryDelayMs: 2000
+            },
+            errorRetry: {
+              maxNumRetry: 0,
+              retryDelayMs: 1000,
+              maxRetryDelayMs: 2000
+            }
+          }
+        },
         xhrSetup: (xhr) => {
           xhr.withCredentials = false;
         }
       });
 
       hlsRef.current = hls;
-      hls.loadSource(streamUrl);
+      hls.loadSource(resolvedStreamUrl);
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
         setIsLoading(false);
+        setErrorMsg(null);
+        setIsCorsError(false);
         const levels = data.levels.map((lvl, index) => ({
           id: index,
           name: lvl.height ? `${lvl.height}p` : `Qualidade ${index + 1}`
@@ -223,13 +288,25 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         console.warn('HLS Error event:', data.type, data.details);
         if (data.fatal) {
           switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
+            case Hls.ErrorTypes.NETWORK_ERROR: {
+              const isManifestCorsBlock =
+                data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR &&
+                (data.response?.code === 0 || !data.response?.code) &&
+                !activeProxy;
+
               if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                tryNativePlayback();
+                tryNativePlayback(streamUrl);
+              } else if (isManifestCorsBlock && channel.streams.length <= 1) {
+                setIsCorsError(true);
+                setErrorMsg(
+                  'O servidor do canal bloqueou leitura direta por CORS neste navegador. Configure um Proxy Cloudflare Worker (gratuito) abaixo ou abra em Safari/iOS/Smart TV.'
+                );
+                setIsLoading(false);
               } else {
                 failoverToNextStream();
               }
               break;
+            }
             case Hls.ErrorTypes.MEDIA_ERROR:
               hls.recoverMediaError();
               break;
@@ -240,13 +317,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native Safari / mobile HLS support
-      tryNativePlayback();
+      // Native Safari / mobile HLS support (no crossOrigin attribute needed)
+      tryNativePlayback(streamUrl);
     } else {
       setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
       setIsLoading(false);
     }
-  }, [failoverToNextStream]);
+  }, [channel.streams.length, failoverToNextStream, getActiveProxyUrl]);
 
   // Load when channel or stream index changes
   useEffect(() => {
@@ -347,7 +424,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   // Actions
   const togglePlay = () => {
-    setupAudioContext();
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
       const playPromise = videoRef.current.play();
@@ -371,7 +447,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   const toggleMute = () => {
-    setupAudioContext();
     if (!videoRef.current) return;
     videoRef.current.muted = !isMuted;
     setIsMuted(!isMuted);
@@ -379,7 +454,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   const handleVolumeChange = (newVol: number) => {
-    setupAudioContext();
     if (!videoRef.current) return;
     videoRef.current.volume = newVol;
     setVolume(newVol);
@@ -473,7 +547,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <video
             ref={videoRef}
             playsInline
-            crossOrigin="anonymous"
             className={`w-full h-full ${getAspectRatioClass()} transition-all duration-200 cursor-pointer`}
             onClick={isMiniPlayer ? scrollToMainPlayer : togglePlay}
             onWaiting={() => setIsLoading(true)}
@@ -518,12 +591,48 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       {/* Stream Error Overlay with Mirror Switcher */}
       {errorMsg && !isLocked && (
-        <div className="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-6 text-center z-20">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3">
-            <RotateCcw className="w-7 h-7" />
+        <div className="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-4 sm:p-6 text-center z-20 overflow-y-auto">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2.5">
+            <RotateCcw className="w-6 h-6" />
           </div>
-          <h4 className="text-lg font-bold text-white mb-1">Falha na Conexão do Sinal</h4>
-          <p className="text-xs text-slate-400 max-w-sm mb-4">{errorMsg}</p>
+          <h4 className="text-base sm:text-lg font-bold text-white mb-1">Falha na Conexão do Sinal</h4>
+          <p className="text-xs text-slate-400 max-w-md mb-3">{errorMsg}</p>
+
+          {isCorsError && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const cleaned = proxyInput.trim().replace(/[/?]+$/, '');
+                try {
+                  if (cleaned) {
+                    localStorage.setItem('playtelas_hls_proxy', cleaned);
+                  } else {
+                    localStorage.removeItem('playtelas_hls_proxy');
+                  }
+                } catch {
+                  // ignore
+                }
+                attemptedIndicesRef.current.clear();
+                const target = channel.streams[currentStreamIndex] || channel.streams[0];
+                if (target) loadStream(target.url, currentStreamIndex);
+              }}
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full max-w-md mb-3"
+            >
+              <input
+                type="url"
+                value={proxyInput}
+                onChange={(e) => setProxyInput(e.target.value)}
+                placeholder="https://seu-worker.workers.dev"
+                className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <button
+                type="submit"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer shrink-0"
+              >
+                Conectar via Proxy
+              </button>
+            </form>
+          )}
 
           <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
             {channel.streams.map((str, idx) => (
@@ -918,7 +1027,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 <button
                   key={b}
                   onClick={() => {
-                    setupAudioContext();
+                    if (b > 1 && hlsRef.current) {
+                      setupAudioContext();
+                    }
                     setVolumeBoost(b);
                   }}
                   className={`py-1 rounded-lg border font-semibold transition cursor-pointer ${

@@ -1,6 +1,6 @@
 {
   "name": "CineLive TV PWA",
-  "description": "Aplicativo PWA de TV ao vivo com 165 canais em alta definição, guia EPG completo em tempo real, controle remoto virtual inteligente, busca por voz, transmissão Smart TV e controle parental.",
+  "description": "Aplicativo PWA de TV ao vivo com 160 canais em alta definição, guia EPG completo em tempo real, controle remoto virtual inteligente, busca por voz, transmissão Smart TV e controle parental.",
   "requestFramePermissions": [
     "microphone"
   ],
