@@ -152,6 +152,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       hlsRef.current = null;
     }
 
+    const tryNativePlayback = () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+      video.src = streamUrl;
+      const onLoaded = () => {
+        setIsLoading(false);
+        const p = video.play();
+        if (p !== undefined) {
+          p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+        }
+      };
+      const onError = () => {
+        failoverToNextStream();
+      };
+      video.addEventListener('loadedmetadata', onLoaded, { once: true });
+      video.addEventListener('error', onError, { once: true });
+    };
+
     if (Hls.isSupported()) {
       const hls = new Hls({
         enableWorker: true,
@@ -204,7 +224,11 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              failoverToNextStream();
+              if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                tryNativePlayback();
+              } else {
+                failoverToNextStream();
+              }
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               hls.recoverMediaError();
@@ -216,15 +240,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native Safari support
-      video.src = streamUrl;
-      video.addEventListener('loadedmetadata', () => {
-        setIsLoading(false);
-        video.play().catch(() => setIsPlaying(false));
-      });
-      video.addEventListener('error', () => {
-        failoverToNextStream();
-      });
+      // Native Safari / mobile HLS support
+      tryNativePlayback();
     } else {
       setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
       setIsLoading(false);
