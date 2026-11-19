@@ -141,6 +141,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   }, [volumeBoost]);
 
   const attemptedIndicesRef = useRef<Set<number>>(new Set());
+  const playbackAbortRef = useRef<AbortController | null>(null);
 
   // Failover helper: automatically cycles through all available mirrors when one fails
   const failoverToNextStream = useCallback(() => {
@@ -176,6 +177,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const loadStream = useCallback((streamUrl: string, streamIdx: number) => {
     if (!videoRef.current) return;
     const video = videoRef.current;
+
+    if (playbackAbortRef.current) {
+      playbackAbortRef.current.abort();
+    }
+    const abortController = new AbortController();
+    playbackAbortRef.current = abortController;
+
     try {
       video.setAttribute('referrerpolicy', 'no-referrer');
     } catch {
@@ -193,17 +201,47 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
 
     const activeProxy = getActiveProxyUrl();
+    const currentStreamMeta = channel.streams[streamIdx];
+    const refParam =
+      activeProxy && currentStreamMeta?.referrer
+        ? `&ref=${encodeURIComponent(currentStreamMeta.referrer)}`
+        : '';
     const resolvedStreamUrl = activeProxy
-      ? `${activeProxy}${activeProxy.includes('?') ? '&' : '?'}url=${encodeURIComponent(streamUrl)}`
+      ? `${activeProxy}${activeProxy.includes('?') ? '&' : '?'}url=${encodeURIComponent(streamUrl)}${refParam}`
       : streamUrl;
 
-    const tryNativePlayback = (nativeUrl: string = streamUrl) => {
+    // Prevent silent browser Mixed Content block for http:// streams on https:// origins without proxy
+    const isMixedContentBlocked =
+      typeof window !== 'undefined' &&
+      window.location.protocol === 'https:' &&
+      streamUrl.startsWith('http://') &&
+      !activeProxy;
+
+    if (isMixedContentBlocked) {
+      const hasUntriedHttpsMirror = channel.streams.some(
+        (s, idx) => s.url.startsWith('https://') && !attemptedIndicesRef.current.has(idx)
+      );
+      if (hasUntriedHttpsMirror) {
+        failoverToNextStream();
+        return;
+      }
+      setIsCorsError(true);
+      setErrorMsg(
+        'Este canal transmite via HTTP direto, que navegadores bloqueiam por segurança em sites HTTPS. Configure um Proxy Cloudflare Worker HTTPS abaixo ou clique em "Abrir Stream Direto".'
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    const tryNativePlayback = (nativeUrl: string = resolvedStreamUrl) => {
+      if (abortController.signal.aborted) return;
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
       video.src = nativeUrl;
       const onLoaded = () => {
+        if (abortController.signal.aborted) return;
         setIsLoading(false);
         setErrorMsg(null);
         setIsCorsError(false);
@@ -213,11 +251,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         }
       };
       const onError = () => {
+        if (abortController.signal.aborted) return;
         failoverToNextStream();
       };
-      video.addEventListener('loadedmetadata', onLoaded, { once: true });
-      video.addEventListener('error', onError, { once: true });
+      video.addEventListener('loadedmetadata', onLoaded, { once: true, signal: abortController.signal });
+      video.addEventListener('error', onError, { once: true, signal: abortController.signal });
     };
+
+    const lowerUrl = streamUrl.toLowerCase();
+    if (lowerUrl.endsWith('.ogg') || lowerUrl.includes('.ogg?')) {
+      tryNativePlayback(resolvedStreamUrl);
+      return;
+    }
 
     if (Hls.isSupported()) {
       const hls = new Hls({
@@ -255,6 +300,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       hls.attachMedia(video);
 
       hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+        if (abortController.signal.aborted) return;
         setIsLoading(false);
         setErrorMsg(null);
         setIsCorsError(false);
@@ -285,6 +331,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       });
 
       hls.on(Hls.Events.ERROR, (_, data) => {
+        if (abortController.signal.aborted) return;
         console.warn('HLS Error event:', data.type, data.details);
         if (data.fatal) {
           switch (data.type) {
@@ -294,12 +341,16 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                 (data.response?.code === 0 || !data.response?.code) &&
                 !activeProxy;
 
+              const hasUntriedMirror = channel.streams.some(
+                (_, idx) => !attemptedIndicesRef.current.has(idx)
+              );
+
               if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                tryNativePlayback(streamUrl);
-              } else if (isManifestCorsBlock && channel.streams.length <= 1) {
+                tryNativePlayback(resolvedStreamUrl);
+              } else if (isManifestCorsBlock && !hasUntriedMirror) {
                 setIsCorsError(true);
                 setErrorMsg(
-                  'O servidor do canal bloqueou leitura direta por CORS neste navegador. Configure um Proxy Cloudflare Worker (gratuito) abaixo ou abra em Safari/iOS/Smart TV.'
+                  'O servidor do canal bloqueou leitura direta por CORS neste navegador. Configure um Proxy Cloudflare Worker (gratuito) abaixo ou clique em "Abrir Stream Direto".'
                 );
                 setIsLoading(false);
               } else {
@@ -308,7 +359,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               break;
             }
             case Hls.ErrorTypes.MEDIA_ERROR:
-              hls.recoverMediaError();
+              if (data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR) {
+                const hasUntriedMirror = channel.streams.some(
+                  (_, idx) => !attemptedIndicesRef.current.has(idx)
+                );
+                if (hasUntriedMirror) {
+                  failoverToNextStream();
+                } else {
+                  setErrorMsg(
+                    'Este sinal utiliza fluxo direto (MPEG-TS) incompatível com o player web. Clique em "Abrir Stream Direto" para reproduzir no player externo/VLC.'
+                  );
+                  setIsLoading(false);
+                }
+              } else {
+                hls.recoverMediaError();
+              }
               break;
             default:
               failoverToNextStream();
@@ -318,12 +383,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Native Safari / mobile HLS support (no crossOrigin attribute needed)
-      tryNativePlayback(streamUrl);
+      tryNativePlayback(resolvedStreamUrl);
     } else {
       setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
       setIsLoading(false);
     }
-  }, [channel.streams.length, failoverToNextStream, getActiveProxyUrl]);
+  }, [channel.streams, failoverToNextStream, getActiveProxyUrl]);
 
   // Load when channel or stream index changes
   useEffect(() => {
@@ -334,6 +399,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   useEffect(() => {
     if (isLocked) {
+      if (playbackAbortRef.current) {
+        playbackAbortRef.current.abort();
+      }
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
@@ -347,6 +415,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
 
     return () => {
+      if (playbackAbortRef.current) {
+        playbackAbortRef.current.abort();
+      }
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
