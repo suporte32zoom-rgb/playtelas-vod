@@ -87,6 +87,36 @@
       };
 
       (function () {
+        var isUncompiledSource = function () {
+          return !!document.querySelector('script[type="module"][src*="src/main.tsx"]');
+        };
+
+        var tryRedirectToDocs = function (onUnavailable) {
+          if (!isUncompiledSource()) {
+            onUnavailable();
+            return;
+          }
+          try {
+            fetch('./docs/index.html', { method: 'HEAD', cache: 'no-store' })
+              .then(function (res) {
+                if (res && res.ok) {
+                  window.location.replace('./docs/' + (window.location.search || '') + (window.location.hash || ''));
+                } else {
+                  onUnavailable();
+                }
+              })
+              .catch(onUnavailable);
+          } catch (e) {
+            onUnavailable();
+          }
+        };
+
+        window.__playtelasHandleEntryError = function () {
+          tryRedirectToDocs(function () {
+            showBootstrapError('Erro ao carregar o módulo principal do aplicativo.');
+          });
+        };
+
         var showBootstrapError = function (msg) {
           var root = document.getElementById('root');
           if (!root) return;
@@ -111,7 +141,9 @@
         window.addEventListener('error', function (event) {
           var root = document.getElementById('root');
           if (root && (!root.firstElementChild || root.querySelector('#splash-status') || root.innerHTML.trim() === '')) {
-            showBootstrapError(event && event.message ? event.message : 'Erro ao carregar recurso da página.');
+            tryRedirectToDocs(function () {
+              showBootstrapError(event && event.message ? event.message : 'Erro ao carregar recurso da página.');
+            });
           }
         });
 
@@ -124,6 +156,13 @@
         });
 
         setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && root.querySelector('#splash-status') && isUncompiledSource()) {
+            tryRedirectToDocs(function () {});
+          }
+        }, 1200);
+
+        setTimeout(function () {
           var fb = document.getElementById('splash-fallback');
           var root = document.getElementById('root');
           if (fb && root && root.querySelector('#splash-status')) {
@@ -132,6 +171,6 @@
         }, 5000);
       })();
     </script>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="./src/main.tsx" onerror="window.__playtelasHandleEntryError && window.__playtelasHandleEntryError()"></script>
   </body>
 </html>

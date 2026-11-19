@@ -26,7 +26,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="./assets/index-VayBc4Y6.js"></script>
+    <script type="module" crossorigin src="./assets/index-CnVZNCxz.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/index-DEqmgHuq.css">
   <link rel="manifest" href="./manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="./registerSW.js"></script></head>
   <body class="bg-[#090d16] text-slate-100 antialiased overflow-x-hidden selection:bg-indigo-500 selection:text-white" style="background-color: #090d16; color: #f1f5f9; margin: 0; min-height: 100vh;">
@@ -89,6 +89,36 @@
       };
 
       (function () {
+        var isUncompiledSource = function () {
+          return !!document.querySelector('script[type="module"][src*="src/main.tsx"]');
+        };
+
+        var tryRedirectToDocs = function (onUnavailable) {
+          if (!isUncompiledSource()) {
+            onUnavailable();
+            return;
+          }
+          try {
+            fetch('./docs/index.html', { method: 'HEAD', cache: 'no-store' })
+              .then(function (res) {
+                if (res && res.ok) {
+                  window.location.replace('./docs/' + (window.location.search || '') + (window.location.hash || ''));
+                } else {
+                  onUnavailable();
+                }
+              })
+              .catch(onUnavailable);
+          } catch (e) {
+            onUnavailable();
+          }
+        };
+
+        window.__playtelasHandleEntryError = function () {
+          tryRedirectToDocs(function () {
+            showBootstrapError('Erro ao carregar o módulo principal do aplicativo.');
+          });
+        };
+
         var showBootstrapError = function (msg) {
           var root = document.getElementById('root');
           if (!root) return;
@@ -113,7 +143,9 @@
         window.addEventListener('error', function (event) {
           var root = document.getElementById('root');
           if (root && (!root.firstElementChild || root.querySelector('#splash-status') || root.innerHTML.trim() === '')) {
-            showBootstrapError(event && event.message ? event.message : 'Erro ao carregar recurso da página.');
+            tryRedirectToDocs(function () {
+              showBootstrapError(event && event.message ? event.message : 'Erro ao carregar recurso da página.');
+            });
           }
         });
 
@@ -124,6 +156,13 @@
             showBootstrapError(reason);
           }
         });
+
+        setTimeout(function () {
+          var root = document.getElementById('root');
+          if (root && root.querySelector('#splash-status') && isUncompiledSource()) {
+            tryRedirectToDocs(function () {});
+          }
+        }, 1200);
 
         setTimeout(function () {
           var fb = document.getElementById('splash-fallback');
