@@ -17,7 +17,7 @@ export default defineConfig(() => {
           id: './',
           name: 'PlayTelas — CineLive TV PWA',
           short_name: 'PlayTelas',
-          description: 'TV ao vivo em alta definição com 160 canais, guia EPG completo em tempo real, controle remoto e busca por voz.',
+          description: 'TV ao vivo em alta definição com 133 canais, guia EPG completo em tempo real, controle remoto e busca por voz.',
           theme_color: '#090d16',
           background_color: '#090d16',
           display: 'standalone',
