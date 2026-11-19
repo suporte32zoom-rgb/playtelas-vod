@@ -101,12 +101,50 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
   }, [volumeBoost]);
 
+  const attemptedIndicesRef = useRef<Set<number>>(new Set());
+
+  // Failover helper: automatically cycles through all available mirrors when one fails
+  const failoverToNextStream = useCallback(() => {
+    const totalStreams = channel.streams.length;
+    if (totalStreams <= 1) {
+      setErrorMsg('Falha ao conectar no fluxo deste canal. Transmissão indisponível no momento.');
+      setIsLoading(false);
+      return;
+    }
+
+    // Find next stream index not yet attempted
+    let nextIndex = -1;
+    for (let i = 0; i < totalStreams; i++) {
+      const idx = (currentStreamIndex + 1 + i) % totalStreams;
+      if (!attemptedIndicesRef.current.has(idx)) {
+        nextIndex = idx;
+        break;
+      }
+    }
+
+    if (nextIndex !== -1) {
+      console.log(`Auto failover to mirror server ${nextIndex + 1} of ${totalStreams}...`);
+      attemptedIndicesRef.current.add(nextIndex);
+      setCurrentStreamIndex(nextIndex);
+    } else {
+      console.warn('All stream mirrors have been attempted.');
+      setErrorMsg(`Falha na conexão do sinal. Todos os ${totalStreams} servidores disponíveis foram testados.`);
+      setIsLoading(false);
+    }
+  }, [channel.streams, currentStreamIndex]);
+
   // Load HLS Stream
-  const loadStream = useCallback((streamUrl: string) => {
+  const loadStream = useCallback((streamUrl: string, streamIdx: number) => {
     if (!videoRef.current) return;
     const video = videoRef.current;
+    try {
+      video.setAttribute('referrerpolicy', 'no-referrer');
+    } catch {
+      // browser compatibility
+    }
     setIsLoading(true);
     setErrorMsg(null);
+    attemptedIndicesRef.current.add(streamIdx);
 
     // Destroy existing Hls instance
     if (hlsRef.current) {
@@ -121,9 +159,12 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         backBufferLength: 60,
         maxBufferLength: 30,
         maxMaxBufferLength: 60,
-        manifestLoadingTimeOut: 15000,
-        levelLoadingTimeOut: 15000,
-        fragLoadingTimeOut: 20000,
+        manifestLoadingTimeOut: 12000,
+        levelLoadingTimeOut: 12000,
+        fragLoadingTimeOut: 15000,
+        xhrSetup: (xhr) => {
+          xhr.withCredentials = false;
+        }
       });
 
       hlsRef.current = hls;
@@ -163,21 +204,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              // Try next mirror stream if available
-              if (channel.streams.length > 1 && currentStreamIndex < channel.streams.length - 1) {
-                console.log('Failing over to mirror server...');
-                setCurrentStreamIndex((prev) => prev + 1);
-              } else {
-                hls.startLoad();
-              }
+              failoverToNextStream();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
               hls.recoverMediaError();
               break;
             default:
-              hls.destroy();
-              setErrorMsg('Falha ao conectar no fluxo deste canal. Tente um servidor alternativo.');
-              setIsLoading(false);
+              failoverToNextStream();
               break;
           }
         }
@@ -190,21 +223,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         video.play().catch(() => setIsPlaying(false));
       });
       video.addEventListener('error', () => {
-        if (channel.streams.length > 1 && currentStreamIndex < channel.streams.length - 1) {
-          setCurrentStreamIndex((prev) => prev + 1);
-        } else {
-          setErrorMsg('Sinal temporariamente indisponível.');
-          setIsLoading(false);
-        }
+        failoverToNextStream();
       });
     } else {
       setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
       setIsLoading(false);
     }
-  }, [channel.streams, currentStreamIndex]);
+  }, [failoverToNextStream]);
 
   // Load when channel or stream index changes
   useEffect(() => {
+    attemptedIndicesRef.current = new Set([0]);
     setCurrentStreamIndex(0);
     setErrorMsg(null);
   }, [channel.id]);
@@ -220,7 +249,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
     const targetStream = channel.streams[currentStreamIndex] || channel.streams[0];
     if (targetStream?.url) {
-      loadStream(targetStream.url);
+      loadStream(targetStream.url, currentStreamIndex);
     }
 
     return () => {
@@ -427,6 +456,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <video
             ref={videoRef}
             playsInline
+            crossOrigin="anonymous"
             className={`w-full h-full ${getAspectRatioClass()} transition-all duration-200 cursor-pointer`}
             onClick={isMiniPlayer ? scrollToMainPlayer : togglePlay}
             onWaiting={() => setIsLoading(true)}
@@ -464,7 +494,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </div>
           </div>
           <span className="mt-3 text-xs font-semibold text-slate-300 tracking-wider uppercase">
-            Conectando ao vivo ({currentStream?.quality || 'HD'})...
+            Conectando ao vivo ({currentStream?.quality || 'HD'} • Servidor {currentStreamIndex + 1}/{channel.streams.length})...
           </span>
         </div>
       )}
@@ -478,11 +508,14 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           <h4 className="text-lg font-bold text-white mb-1">Falha na Conexão do Sinal</h4>
           <p className="text-xs text-slate-400 max-w-sm mb-4">{errorMsg}</p>
 
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
             {channel.streams.map((str, idx) => (
               <button
                 key={idx}
-                onClick={() => setCurrentStreamIndex(idx)}
+                onClick={() => {
+                  attemptedIndicesRef.current.clear();
+                  setCurrentStreamIndex(idx);
+                }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
                   currentStreamIndex === idx
                     ? 'bg-indigo-600 border-indigo-500 text-white'
@@ -494,14 +527,26 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             ))}
             <button
               onClick={() => {
+                attemptedIndicesRef.current.clear();
                 const target = channel.streams[currentStreamIndex] || channel.streams[0];
-                if (target) loadStream(target.url);
+                if (target) loadStream(target.url, currentStreamIndex);
               }}
               className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md flex items-center gap-1.5 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Tentar Novamente
             </button>
+            {currentStream?.url && (
+              <a
+                href={currentStream.url}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center gap-1.5 transition"
+              >
+                <ArrowUpRight className="w-3.5 h-3.5 text-indigo-400" />
+                Abrir Stream Direto
+              </a>
+            )}
           </div>
         </div>
       )}

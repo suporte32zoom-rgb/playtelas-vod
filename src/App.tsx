@@ -140,7 +140,11 @@ export default function App() {
 
   // Save last selected channel
   useEffect(() => {
-    localStorage.setItem('cinelive_last_channel', selectedChannelId);
+    try {
+      localStorage.setItem('cinelive_last_channel', selectedChannelId);
+    } catch {
+      // ignore storage errors
+    }
   }, [selectedChannelId]);
 
   // Current active channel object

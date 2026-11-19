@@ -74,7 +74,7 @@ export function usePushNotifications() {
     }
   }, []);
 
-  const sendNotification = useCallback((title: string, body: string, icon: string = '/pwa-192x192.png') => {
+  const sendNotification = useCallback((title: string, body: string, icon: string = './pwa-192x192.png') => {
     // Show in-app toast
     const toastId = Math.random().toString();
     setLatestToast({ id: toastId, title, body });
@@ -88,16 +88,16 @@ export function usePushNotifications() {
         new Notification(title, {
           body,
           icon,
-          badge: '/icon.svg',
+          badge: './icon.svg',
           tag: 'cinelive-alert',
           silent: false
         });
       } catch {
         // Fallback for Service Worker notification if available
         if (navigator.serviceWorker?.controller) {
-          navigator.serviceWorker.ready.then((reg) => {
-            reg.showNotification(title, { body, icon });
-          });
+          navigator.serviceWorker.ready
+            .then((reg) => reg.showNotification(title, { body, icon }))
+            .catch(() => {});
         }
       }
     }

@@ -6,38 +6,38 @@ import {VitePWA} from 'vite-plugin-pwa';
 
 export default defineConfig(() => {
   return {
-    base: '/',
+    base: './',
     plugins: [
       react(),
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg', 'CNAME', '.nojekyll'],
+        includeAssets: [],
         manifest: {
-          id: '/',
-          name: 'CineLive TV PWA',
-          short_name: 'CineLiveTV',
+          id: './',
+          name: 'PlayTelas — CineLive TV PWA',
+          short_name: 'PlayTelas',
           description: 'TV ao vivo em alta definição com mais de 280 canais, guia EPG completo em tempo real, controle remoto e busca por voz.',
           theme_color: '#090d16',
           background_color: '#090d16',
           display: 'standalone',
-          start_url: '/',
-          scope: '/',
+          start_url: './',
+          scope: './',
           icons: [
             {
-              src: '/pwa-192x192.png',
+              src: 'pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: '/pwa-512x512.png',
+              src: 'pwa-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'any',
             },
             {
-              src: '/pwa-maskable-512x512.png',
+              src: 'pwa-maskable-512x512.png',
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
@@ -45,6 +45,9 @@ export default defineConfig(() => {
           ],
         },
         workbox: {
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // 6 MB to cache full catalog offline
         },

@@ -40,7 +40,7 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
   if (!isOpen) return null;
 
   const currentStream = channel.streams[0];
-  const receiverUrl = `${window.location.origin}?mode=tv&room=${pairingCode}`;
+  const receiverUrl = `${window.location.origin}${window.location.pathname}?mode=tv&room=${pairingCode}`;
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);

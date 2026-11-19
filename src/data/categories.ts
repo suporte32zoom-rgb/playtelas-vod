@@ -5,7 +5,7 @@ export const CATEGORIES: CategoryInfo[] = [
     id: 'todos',
     label: 'Todos os Canais',
     iconName: 'Tv',
-    description: 'Catálogo completo com mais de 280 canais ao vivo',
+    description: 'Catálogo atualizado com 287 canais ao vivo e servidores alternativos',
     color: '#6366f1',
     gradient: 'from-indigo-600 to-violet-600',
     subcategories: ['Todos', 'Mais Assistidos', 'Em Alta', 'Full HD']
