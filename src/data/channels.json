@@ -16547,8 +16547,22 @@
     "tvgId": "AgroCanal.br@SD",
     "streams": [
       {
-        "title": "AgroCanal (720p)",
+        "title": "AgroCanal (720p) - Principal",
         "url": "http://170.83.49.66:8083/AGROCANALHD/index.m3u8",
+        "quality": "720p",
+        "referrer": null,
+        "userAgent": null
+      },
+      {
+        "title": "AgroCanal (720p) - Backup HTTPS",
+        "url": "https://aovivo.equipea.com.br:5443/aovivort/streams/pshRLrnv6isXq7RG4747567774043229.m3u8",
+        "quality": "720p",
+        "referrer": null,
+        "userAgent": null
+      },
+      {
+        "title": "AgroCanal (720p) - Alternativo HTTP",
+        "url": "http://186.219.52.187/agro_canal/index.m3u8",
         "quality": "720p",
         "referrer": null,
         "userAgent": null

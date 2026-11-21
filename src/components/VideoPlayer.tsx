@@ -21,7 +21,10 @@ import {
   Ratio,
   Maximize2,
   X,
-  ArrowUpRight
+  ArrowUpRight,
+  Copy,
+  Check,
+  ShieldAlert
 } from 'lucide-react';
 import { Channel, AspectRatioMode, EqualizerMode } from '../types/tv';
 import { getCurrentProgram, getProgramProgress } from '../data/channels';
@@ -68,6 +71,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const [showSettingsMenu, setShowSettingsMenu] = useState<boolean>(false);
   const [currentStreamIndex, setCurrentStreamIndex] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [streamStatus, setStreamStatus] = useState<
+    'loading' | 'playing' | 'paused' | 'blocked_mixed_content' | 'blocked_cors' | 'unavailable'
+  >('loading');
+  const [copiedUrl, setCopiedUrl] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isCorsError, setIsCorsError] = useState<boolean>(false);
   const [proxyInput, setProxyInput] = useState<string>(() => {
@@ -142,272 +149,369 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
   const attemptedIndicesRef = useRef<Set<number>>(new Set());
   const playbackAbortRef = useRef<AbortController | null>(null);
+  const loadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastFailureRef = useRef<{ isMixedContent: boolean; isCors: boolean; detail?: string }>({
+    isMixedContent: false,
+    isCors: false
+  });
+
+  const clearLoadTimeout = useCallback(() => {
+    if (loadTimeoutRef.current) {
+      clearTimeout(loadTimeoutRef.current);
+      loadTimeoutRef.current = null;
+    }
+  }, []);
 
   // Failover helper: automatically cycles through all available mirrors when one fails
-  const failoverToNextStream = useCallback(() => {
-    const totalStreams = channel.streams.length;
-    if (totalStreams <= 1) {
-      setErrorMsg('Falha ao conectar no fluxo deste canal. Transmissão indisponível no momento.');
-      setIsLoading(false);
-      return;
-    }
-
-    // Find next stream index not yet attempted
-    let nextIndex = -1;
-    for (let i = 0; i < totalStreams; i++) {
-      const idx = (currentStreamIndex + 1 + i) % totalStreams;
-      if (!attemptedIndicesRef.current.has(idx)) {
-        nextIndex = idx;
-        break;
+  const failoverToNextStream = useCallback(
+    (failureInfo?: { isMixedContent?: boolean; isCors?: boolean; detail?: string }) => {
+      clearLoadTimeout();
+      if (failureInfo) {
+        lastFailureRef.current = {
+          isMixedContent: Boolean(failureInfo.isMixedContent || lastFailureRef.current.isMixedContent),
+          isCors: Boolean(failureInfo.isCors || lastFailureRef.current.isCors),
+          detail: failureInfo.detail || lastFailureRef.current.detail
+        };
       }
-    }
 
-    if (nextIndex !== -1) {
-      console.log(`Auto failover to mirror server ${nextIndex + 1} of ${totalStreams}...`);
-      attemptedIndicesRef.current.add(nextIndex);
-      setCurrentStreamIndex(nextIndex);
-    } else {
-      console.warn('All stream mirrors have been attempted.');
-      setErrorMsg(`Falha na conexão do sinal. Todos os ${totalStreams} servidores disponíveis foram testados.`);
-      setIsLoading(false);
-    }
-  }, [channel.streams, currentStreamIndex]);
+      const totalStreams = channel.streams.length;
+      let nextIndex = -1;
 
-  // Load HLS Stream
-  const loadStream = useCallback((streamUrl: string, streamIdx: number) => {
-    if (!videoRef.current) return;
-    const video = videoRef.current;
+      // If current failure was HTTP Mixed Content on an HTTPS page, prefer an untried HTTPS backup first
+      if (failureInfo?.isMixedContent) {
+        for (let i = 0; i < totalStreams; i++) {
+          const idx = (currentStreamIndex + 1 + i) % totalStreams;
+          if (!attemptedIndicesRef.current.has(idx) && channel.streams[idx]?.url.startsWith('https://')) {
+            nextIndex = idx;
+            break;
+          }
+        }
+      }
 
-    if (playbackAbortRef.current) {
-      playbackAbortRef.current.abort();
-    }
-    const abortController = new AbortController();
-    playbackAbortRef.current = abortController;
+      if (nextIndex === -1) {
+        for (let i = 0; i < totalStreams; i++) {
+          const idx = (currentStreamIndex + 1 + i) % totalStreams;
+          if (!attemptedIndicesRef.current.has(idx)) {
+            nextIndex = idx;
+            break;
+          }
+        }
+      }
 
-    try {
-      video.setAttribute('referrerpolicy', 'no-referrer');
-    } catch {
-      // browser compatibility
-    }
-    setIsLoading(true);
-    setErrorMsg(null);
-    setIsCorsError(false);
-    attemptedIndicesRef.current.add(streamIdx);
-
-    // Destroy existing Hls instance
-    if (hlsRef.current) {
-      hlsRef.current.destroy();
-      hlsRef.current = null;
-    }
-
-    const activeProxy = getActiveProxyUrl();
-    const currentStreamMeta = channel.streams[streamIdx];
-    const refParam =
-      activeProxy && currentStreamMeta?.referrer
-        ? `&ref=${encodeURIComponent(currentStreamMeta.referrer)}`
-        : '';
-    const resolvedStreamUrl = activeProxy
-      ? `${activeProxy}${activeProxy.includes('?') ? '&' : '?'}url=${encodeURIComponent(streamUrl)}${refParam}`
-      : streamUrl;
-
-    // Prevent silent browser Mixed Content block for http:// streams on https:// origins without proxy
-    const isMixedContentBlocked =
-      typeof window !== 'undefined' &&
-      window.location.protocol === 'https:' &&
-      streamUrl.startsWith('http://') &&
-      !activeProxy;
-
-    if (isMixedContentBlocked) {
-      const hasUntriedHttpsMirror = channel.streams.some(
-        (s, idx) => s.url.startsWith('https://') && !attemptedIndicesRef.current.has(idx)
-      );
-      if (hasUntriedHttpsMirror) {
-        failoverToNextStream();
+      if (nextIndex !== -1) {
+        console.info(
+          `[PlayTelas Player] Alternando para servidor alternativo ${nextIndex + 1}/${totalStreams} do canal "${channel.name}"...`
+        );
+        attemptedIndicesRef.current.add(nextIndex);
+        setCurrentStreamIndex(nextIndex);
         return;
       }
-      setIsCorsError(true);
-      setErrorMsg(
-        'Este canal transmite via HTTP direto, que navegadores bloqueiam por segurança em sites HTTPS. Configure um Proxy Cloudflare Worker HTTPS abaixo ou clique em "Abrir Stream Direto".'
-      );
-      setIsLoading(false);
-      return;
-    }
 
-    const tryNativePlayback = (nativeUrl: string = resolvedStreamUrl) => {
-      if (abortController.signal.aborted) return;
+      const isMixedContentFinal =
+        Boolean(failureInfo?.isMixedContent) || lastFailureRef.current.isMixedContent;
+      const isCorsFinal = Boolean(failureInfo?.isCors) || lastFailureRef.current.isCors;
+
+      console.warn(
+        `[PlayTelas Player] Nenhum servidor reproduzível para "${channel.name}" (${totalStreams} testados). Motivo:`,
+        { isMixedContentFinal, isCorsFinal, detail: failureInfo?.detail }
+      );
+
+      if (isMixedContentFinal) {
+        setStreamStatus('blocked_mixed_content');
+        setIsCorsError(true);
+        setErrorMsg(
+          'Este canal usa link HTTP em uma página HTTPS, e o navegador bloqueou a reprodução incorporada por política de Mixed Content. Tente um servidor alternativo, abra o stream em nova aba, copie o link para player externo (VLC) ou conecte via Proxy HTTPS abaixo.'
+        );
+      } else if (isCorsFinal) {
+        setStreamStatus('blocked_cors');
+        setIsCorsError(true);
+        setErrorMsg(
+          'O servidor deste canal bloqueou a leitura direta por CORS neste navegador. Tente outro servidor alternativo, abra o stream em nova aba, copie o link para player externo ou use o Proxy Cloudflare Worker abaixo.'
+        );
+      } else {
+        setStreamStatus('unavailable');
+        setIsCorsError(false);
+        setErrorMsg(
+          failureInfo?.detail ||
+            (totalStreams > 1
+              ? `Stream indisponível no momento. Todos os ${totalStreams} servidores configurados foram testados.`
+              : 'Stream indisponível no momento. Tente novamente ou abra o link em nova aba / player externo.')
+        );
+      }
+      setIsLoading(false);
+    },
+    [channel.name, channel.streams, clearLoadTimeout, currentStreamIndex]
+  );
+
+  // Load HLS / Media Stream (attempts both HTTPS and HTTP URLs cleanly)
+  const loadStream = useCallback(
+    (streamUrl: string, streamIdx: number) => {
+      if (!videoRef.current) return;
+      const video = videoRef.current;
+
+      clearLoadTimeout();
+      if (playbackAbortRef.current) {
+        playbackAbortRef.current.abort();
+      }
+      const abortController = new AbortController();
+      playbackAbortRef.current = abortController;
+
+      try {
+        video.setAttribute('referrerpolicy', 'no-referrer');
+      } catch {
+        // browser compatibility
+      }
+
+      const isHttpStream = streamUrl.startsWith('http://');
+      const isHttpsPage = typeof window !== 'undefined' && window.location.protocol === 'https:';
+      const activeProxy = getActiveProxyUrl();
+      const isHttpOnHttps = isHttpsPage && isHttpStream && !activeProxy;
+      const protocolLabel = isHttpStream ? 'HTTP' : 'HTTPS';
+
+      console.info(
+        `[PlayTelas Player] Tentando reproduzir #${channel.channelNumber} "${channel.name}" • Servidor ${streamIdx + 1}/${channel.streams.length} (${protocolLabel})`
+      );
+
+      setIsLoading(true);
+      setStreamStatus('loading');
+      setErrorMsg(null);
+      setIsCorsError(false);
+      setCopiedUrl(false);
+      attemptedIndicesRef.current.add(streamIdx);
+
+      // Destroy existing Hls instance
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
       }
-      video.src = nativeUrl;
-      const onLoaded = () => {
+
+      const currentStreamMeta = channel.streams[streamIdx];
+      const refParam =
+        activeProxy && currentStreamMeta?.referrer
+          ? `&ref=${encodeURIComponent(currentStreamMeta.referrer)}`
+          : '';
+      const resolvedStreamUrl = activeProxy
+        ? `${activeProxy}${activeProxy.includes('?') ? '&' : '?'}url=${encodeURIComponent(streamUrl)}${refParam}`
+        : streamUrl;
+
+      // Guard timeout so Mixed Content / stalled sockets never spin forever
+      loadTimeoutRef.current = setTimeout(() => {
         if (abortController.signal.aborted) return;
-        setIsLoading(false);
-        setErrorMsg(null);
-        setIsCorsError(false);
-        const p = video.play();
-        if (p !== undefined) {
-          p.then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+        console.warn(
+          `[PlayTelas Player] Tempo limite ao carregar servidor ${streamIdx + 1} (${protocolLabel}) de "${channel.name}".`
+        );
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
         }
-      };
-      const onError = () => {
+        failoverToNextStream({
+          isMixedContent: isHttpOnHttps,
+          isCors: !isHttpOnHttps && !activeProxy,
+          detail: isHttpOnHttps
+            ? undefined
+            : 'O servidor demorou para responder ao carregar o manifesto do canal.'
+        });
+      }, 12000);
+
+      let triedNativeFallback = false;
+
+      const tryNativePlayback = (nativeUrl: string = resolvedStreamUrl) => {
         if (abortController.signal.aborted) return;
-        failoverToNextStream();
-      };
-      video.addEventListener('loadedmetadata', onLoaded, { once: true, signal: abortController.signal });
-      video.addEventListener('error', onError, { once: true, signal: abortController.signal });
-    };
-
-    const lowerUrl = streamUrl.toLowerCase();
-    const isDirectMedia =
-      lowerUrl.endsWith('.ogg') ||
-      lowerUrl.includes('.ogg?') ||
-      lowerUrl.endsWith('.mp4') ||
-      lowerUrl.includes('.mp4?') ||
-      lowerUrl.endsWith('.webm') ||
-      lowerUrl.includes('.webm?');
-
-    if (isDirectMedia) {
-      setQualityLevels([]);
-      tryNativePlayback(streamUrl.startsWith('https://') ? streamUrl : resolvedStreamUrl);
-      return;
-    }
-
-    if (Hls.isSupported()) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: true,
-        backBufferLength: 60,
-        maxBufferLength: 30,
-        maxMaxBufferLength: 60,
-        manifestLoadingTimeOut: 12000,
-        levelLoadingTimeOut: 12000,
-        fragLoadingTimeOut: 15000,
-        manifestLoadPolicy: {
-          default: {
-            maxTimeToFirstByteMs: 12000,
-            maxLoadTimeMs: 15000,
-            timeoutRetry: {
-              maxNumRetry: 1,
-              retryDelayMs: 1000,
-              maxRetryDelayMs: 2000
-            },
-            errorRetry: {
-              maxNumRetry: 0,
-              retryDelayMs: 1000,
-              maxRetryDelayMs: 2000
-            }
-          }
-        },
-        xhrSetup: (xhr) => {
-          xhr.withCredentials = false;
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+          hlsRef.current = null;
         }
-      });
-
-      hlsRef.current = hls;
-      hls.loadSource(resolvedStreamUrl);
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-        if (abortController.signal.aborted) return;
-        setIsLoading(false);
-        setErrorMsg(null);
-        setIsCorsError(false);
-        const levels = data.levels.map((lvl, index) => ({
-          id: index,
-          name: lvl.height ? `${lvl.height}p` : `Qualidade ${index + 1}`
-        }));
-        setQualityLevels(levels);
-
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
+        video.src = nativeUrl;
+        const onLoaded = () => {
+          if (abortController.signal.aborted) return;
+          clearLoadTimeout();
+          setIsLoading(false);
+          setErrorMsg(null);
+          setIsCorsError(false);
+          const p = video.play();
+          if (p !== undefined) {
+            p.then(() => {
               setIsPlaying(true);
-            })
-            .catch((err) => {
-              // AbortError is normal when a new stream is loaded before the previous play() resolved
-              if (err?.name !== 'AbortError') {
-                console.debug('Autoplay prevented or interrupted:', err);
-              }
+              setStreamStatus('playing');
+            }).catch(() => {
               setIsPlaying(false);
+              setStreamStatus('paused');
             });
-        }
-      });
-
-      hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
-        setCurrentQuality(data.level);
-      });
-
-      hls.on(Hls.Events.ERROR, (_, data) => {
-        if (abortController.signal.aborted) return;
-        console.warn('HLS Error event:', data.type, data.details);
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR: {
-              const isManifestCorsBlock =
-                data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR &&
-                (data.response?.code === 0 || !data.response?.code) &&
-                !activeProxy;
-
-              const hasUntriedMirror = channel.streams.some(
-                (_, idx) => !attemptedIndicesRef.current.has(idx)
-              );
-
-              if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                tryNativePlayback(resolvedStreamUrl);
-              } else if (isManifestCorsBlock && !hasUntriedMirror) {
-                setIsCorsError(true);
-                setErrorMsg(
-                  'O servidor do canal bloqueou leitura direta por CORS neste navegador. Configure um Proxy Cloudflare Worker (gratuito) abaixo ou clique em "Abrir Stream Direto".'
-                );
-                setIsLoading(false);
-              } else {
-                failoverToNextStream();
-              }
-              break;
-            }
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              if (data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR) {
-                const hasUntriedMirror = channel.streams.some(
-                  (_, idx) => !attemptedIndicesRef.current.has(idx)
-                );
-                if (hasUntriedMirror) {
-                  failoverToNextStream();
-                } else {
-                  setErrorMsg(
-                    'Este sinal utiliza fluxo direto (MPEG-TS) incompatível com o player web. Clique em "Abrir Stream Direto" para reproduzir no player externo/VLC.'
-                  );
-                  setIsLoading(false);
-                }
-              } else {
-                hls.recoverMediaError();
-              }
-              break;
-            default:
-              failoverToNextStream();
-              break;
+          } else {
+            setStreamStatus('playing');
           }
-        }
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native Safari / mobile HLS support (no crossOrigin attribute needed)
-      tryNativePlayback(resolvedStreamUrl);
-    } else {
-      setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
-      setIsLoading(false);
-    }
-  }, [channel.streams, failoverToNextStream, getActiveProxyUrl]);
+        };
+        const onError = () => {
+          if (abortController.signal.aborted) return;
+          console.warn(
+            `[PlayTelas Player] Erro na reprodução nativa (${protocolLabel}) para "${channel.name}".`
+          );
+          failoverToNextStream({
+            isMixedContent: isHttpOnHttps,
+            isCors: false
+          });
+        };
+        video.addEventListener('loadedmetadata', onLoaded, { once: true, signal: abortController.signal });
+        video.addEventListener('error', onError, { once: true, signal: abortController.signal });
+      };
+
+      const lowerUrl = streamUrl.toLowerCase();
+      const isDirectMedia =
+        lowerUrl.endsWith('.ogg') ||
+        lowerUrl.includes('.ogg?') ||
+        lowerUrl.endsWith('.mp4') ||
+        lowerUrl.includes('.mp4?') ||
+        lowerUrl.endsWith('.webm') ||
+        lowerUrl.includes('.webm?');
+
+      if (isDirectMedia) {
+        setQualityLevels([]);
+        tryNativePlayback(streamUrl.startsWith('https://') ? streamUrl : resolvedStreamUrl);
+        return;
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: true,
+          backBufferLength: 60,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          manifestLoadingTimeOut: 10000,
+          levelLoadingTimeOut: 10000,
+          fragLoadingTimeOut: 14000,
+          manifestLoadPolicy: {
+            default: {
+              maxTimeToFirstByteMs: 10000,
+              maxLoadTimeMs: 12000,
+              timeoutRetry: {
+                maxNumRetry: 1,
+                retryDelayMs: 800,
+                maxRetryDelayMs: 1500
+              },
+              errorRetry: {
+                maxNumRetry: 0,
+                retryDelayMs: 800,
+                maxRetryDelayMs: 1500
+              }
+            }
+          },
+          xhrSetup: (xhr) => {
+            xhr.withCredentials = false;
+          }
+        });
+
+        hlsRef.current = hls;
+        hls.loadSource(resolvedStreamUrl);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+          if (abortController.signal.aborted) return;
+          clearLoadTimeout();
+          setIsLoading(false);
+          setErrorMsg(null);
+          setIsCorsError(false);
+          const levels = data.levels.map((lvl, index) => ({
+            id: index,
+            name: lvl.height ? `${lvl.height}p` : `Qualidade ${index + 1}`
+          }));
+          setQualityLevels(levels);
+
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setIsPlaying(true);
+                setStreamStatus('playing');
+              })
+              .catch((err) => {
+                if (err?.name !== 'AbortError') {
+                  console.debug('[PlayTelas Player] Autoplay aguardando interação:', err);
+                }
+                setIsPlaying(false);
+                setStreamStatus('paused');
+              });
+          } else {
+            setStreamStatus('playing');
+          }
+        });
+
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
+          setCurrentQuality(data.level);
+        });
+
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (abortController.signal.aborted) return;
+          console.warn(`[PlayTelas Player] HLS Error (${protocolLabel}):`, data.type, data.details, data.response?.code);
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR: {
+                const isZeroResponse = data.response?.code === 0 || !data.response?.code;
+                const isManifestCorsBlock =
+                  data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR &&
+                  isZeroResponse &&
+                  !isHttpOnHttps &&
+                  !activeProxy;
+                const isMixedContentFailure = isHttpOnHttps && isZeroResponse;
+
+                if (
+                  !triedNativeFallback &&
+                  video.canPlayType('application/vnd.apple.mpegurl')
+                ) {
+                  triedNativeFallback = true;
+                  tryNativePlayback(resolvedStreamUrl);
+                } else {
+                  failoverToNextStream({
+                    isMixedContent: isMixedContentFailure,
+                    isCors: isManifestCorsBlock
+                  });
+                }
+                break;
+              }
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                if (data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR) {
+                  failoverToNextStream({
+                    isMixedContent: isHttpOnHttps,
+                    detail:
+                      'Este sinal utiliza fluxo direto (MPEG-TS) ou formato não-HLS incompatível com o player web. Abra em nova aba ou copie o link para player externo (VLC).'
+                  });
+                } else {
+                  hls.recoverMediaError();
+                }
+                break;
+              default:
+                failoverToNextStream({
+                  isMixedContent: isHttpOnHttps
+                });
+                break;
+            }
+          }
+        });
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native Safari / mobile HLS support (attempts both HTTPS and HTTP URLs)
+        tryNativePlayback(resolvedStreamUrl);
+      } else {
+        clearLoadTimeout();
+        setStreamStatus('unavailable');
+        setErrorMsg('Seu navegador não possui suporte a streaming HLS.');
+        setIsLoading(false);
+      }
+    },
+    [channel.channelNumber, channel.name, channel.streams, clearLoadTimeout, failoverToNextStream, getActiveProxyUrl]
+  );
 
   // Load when channel or stream index changes
   useEffect(() => {
     attemptedIndicesRef.current = new Set([0]);
+    lastFailureRef.current = { isMixedContent: false, isCors: false };
     setCurrentStreamIndex(0);
     setErrorMsg(null);
+    setStreamStatus('loading');
   }, [channel.id]);
 
   useEffect(() => {
     if (isLocked) {
+      clearLoadTimeout();
       if (playbackAbortRef.current) {
         playbackAbortRef.current.abort();
       }
@@ -424,6 +528,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     }
 
     return () => {
+      clearLoadTimeout();
       if (playbackAbortRef.current) {
         playbackAbortRef.current.abort();
       }
@@ -432,7 +537,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         hlsRef.current = null;
       }
     };
-  }, [channel, currentStreamIndex, isLocked, loadStream]);
+  }, [channel, clearLoadTimeout, currentStreamIndex, isLocked, loadStream]);
 
   // Handle Controls Auto-hide
   const triggerUserActivity = useCallback(() => {
@@ -629,10 +734,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             playsInline
             className={`w-full h-full ${getAspectRatioClass()} transition-all duration-200 cursor-pointer`}
             onClick={isMiniPlayer ? scrollToMainPlayer : togglePlay}
-            onWaiting={() => setIsLoading(true)}
+            onWaiting={() => {
+              setIsLoading(true);
+              if (!errorMsg) setStreamStatus('loading');
+            }}
             onPlaying={() => {
               setIsLoading(false);
               setIsPlaying(true);
+              setStreamStatus('playing');
+            }}
+            onPause={() => {
+              setIsPlaying(false);
+              if (!isLoading && !errorMsg) setStreamStatus('paused');
             }}
           />
       ) : (
@@ -672,10 +785,37 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       {/* Stream Error Overlay with Mirror Switcher */}
       {errorMsg && !isLocked && (
         <div className="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-4 sm:p-6 text-center z-20 overflow-y-auto">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-2.5">
-            <RotateCcw className="w-6 h-6" />
+          <div
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 ${
+              streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors'
+                ? 'bg-amber-500/10 border border-amber-500/30 text-amber-400'
+                : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+            }`}
+          >
+            {streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors' ? (
+              <ShieldAlert className="w-6 h-6" />
+            ) : (
+              <RotateCcw className="w-6 h-6" />
+            )}
           </div>
-          <h4 className="text-base sm:text-lg font-bold text-white mb-1">Falha na Conexão do Sinal</h4>
+          <span
+            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider mb-1.5 border ${
+              streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors'
+                ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                : 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+            }`}
+          >
+            {streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors'
+              ? 'Link HTTP/CORS bloqueado'
+              : 'Stream indisponível'}
+          </span>
+          <h4 className="text-base sm:text-lg font-bold text-white mb-1">
+            {streamStatus === 'blocked_mixed_content'
+              ? 'Link HTTP bloqueado em página HTTPS'
+              : streamStatus === 'blocked_cors'
+                ? 'Bloqueio de CORS no Servidor'
+                : 'Falha na Conexão do Sinal'}
+          </h4>
           <p className="text-xs text-slate-400 max-w-md mb-3">{errorMsg}</p>
 
           {isCorsError && (
@@ -693,6 +833,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
                   // ignore
                 }
                 attemptedIndicesRef.current.clear();
+                lastFailureRef.current = { isMixedContent: false, isCors: false };
                 const target = channel.streams[currentStreamIndex] || channel.streams[0];
                 if (target) loadStream(target.url, currentStreamIndex);
               }}
@@ -714,26 +855,44 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             </form>
           )}
 
-          <div className="flex flex-wrap items-center justify-center gap-2 max-w-md">
-            {channel.streams.map((str, idx) => (
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-lg">
+            {channel.streams.length > 1 && (
               <button
-                key={idx}
                 onClick={() => {
-                  attemptedIndicesRef.current.clear();
-                  setCurrentStreamIndex(idx);
+                  const nextIdx = (currentStreamIndex + 1) % channel.streams.length;
+                  attemptedIndicesRef.current = new Set([nextIdx]);
+                  lastFailureRef.current = { isMixedContent: false, isCors: false };
+                  setCurrentStreamIndex(nextIdx);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-                  currentStreamIndex === idx
-                    ? 'bg-indigo-600 border-indigo-500 text-white'
-                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
-                }`}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition cursor-pointer"
               >
-                Servidor {idx + 1} ({str.quality})
+                Trocar para Link Alternativo ({((currentStreamIndex + 1) % channel.streams.length) + 1}/{channel.streams.length})
               </button>
-            ))}
+            )}
+            {channel.streams.map((str, idx) => {
+              const proto = str.url.startsWith('http://') ? 'HTTP' : 'HTTPS';
+              return (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    attemptedIndicesRef.current = new Set([idx]);
+                    lastFailureRef.current = { isMixedContent: false, isCors: false };
+                    setCurrentStreamIndex(idx);
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                    currentStreamIndex === idx
+                      ? 'bg-indigo-600/80 border-indigo-400 text-white'
+                      : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                  }`}
+                >
+                  Servidor {idx + 1} ({proto} • {str.quality})
+                </button>
+              );
+            })}
             <button
               onClick={() => {
-                attemptedIndicesRef.current.clear();
+                attemptedIndicesRef.current = new Set([currentStreamIndex]);
+                lastFailureRef.current = { isMixedContent: false, isCors: false };
                 const target = channel.streams[currentStreamIndex] || channel.streams[0];
                 if (target) loadStream(target.url, currentStreamIndex);
               }}
@@ -743,15 +902,41 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               Tentar Novamente
             </button>
             {currentStream?.url && (
-              <a
-                href={currentStream.url}
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center gap-1.5 transition"
-              >
-                <ArrowUpRight className="w-3.5 h-3.5 text-indigo-400" />
-                Abrir Stream Direto
-              </a>
+              <>
+                <a
+                  href={currentStream.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center gap-1.5 transition"
+                >
+                  <ArrowUpRight className="w-3.5 h-3.5 text-indigo-400" />
+                  Abrir Stream em Nova Aba
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (navigator.clipboard?.writeText) {
+                      navigator.clipboard.writeText(currentStream.url).then(() => {
+                        setCopiedUrl(true);
+                        setTimeout(() => setCopiedUrl(false), 2500);
+                      }).catch(() => {});
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  {copiedUrl ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span className="text-emerald-300">Link Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-indigo-400" />
+                      <span>Copiar Link (Player Externo)</span>
+                    </>
+                  )}
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -883,6 +1068,29 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800/80 text-indigo-300 border border-slate-700">
                 {currentStream?.quality || 'HD'}
               </span>
+              <span
+                className={`px-1.5 py-0.5 rounded text-[10px] font-semibold border hidden sm:inline-flex items-center ${
+                  streamStatus === 'playing'
+                    ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                    : streamStatus === 'loading'
+                      ? 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300'
+                      : streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors'
+                        ? 'bg-amber-500/15 border-amber-500/30 text-amber-300'
+                        : streamStatus === 'unavailable'
+                          ? 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+                          : 'bg-slate-800/80 border-slate-700 text-slate-300'
+                }`}
+              >
+                {streamStatus === 'playing'
+                  ? 'Reproduzindo'
+                  : streamStatus === 'loading'
+                    ? 'Carregando'
+                    : streamStatus === 'blocked_mixed_content' || streamStatus === 'blocked_cors'
+                      ? 'Link HTTP/CORS bloqueado'
+                      : streamStatus === 'unavailable'
+                        ? 'Stream indisponível'
+                        : 'Pausado'}
+              </span>
             </div>
             <p className="text-xs text-slate-300 line-clamp-1 mt-0.5 font-medium drop-shadow">
               {currentProgram.title}
@@ -995,12 +1203,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             {channel.streams.length > 1 && (
               <select
                 value={currentStreamIndex}
-                onChange={(e) => setCurrentStreamIndex(parseInt(e.target.value))}
+                onChange={(e) => {
+                  const idx = parseInt(e.target.value, 10);
+                  attemptedIndicesRef.current = new Set([idx]);
+                  lastFailureRef.current = { isMixedContent: false, isCors: false };
+                  setCurrentStreamIndex(idx);
+                }}
                 className="bg-slate-900/90 border border-slate-700 text-slate-200 text-xs rounded-xl px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer hidden sm:block"
               >
                 {channel.streams.map((str, idx) => (
                   <option key={idx} value={idx}>
-                    Servidor {idx + 1} ({str.quality})
+                    Servidor {idx + 1} ({str.url.startsWith('http://') ? 'HTTP' : 'HTTPS'} • {str.quality})
                   </option>
                 ))}
               </select>
