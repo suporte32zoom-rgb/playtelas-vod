@@ -14948,16 +14948,8 @@
     "streams": [
       {
         "title": "Rede Globo (1080p)",
-        "url": "https://cdn-sp2.satlabscloud.com.br/RBS_HD/index.m3u8?token=Mw3YKkujzIi9hYQJ6kAQjQvly2VdBNuGPjHOq",
+        "url": "https://rr1---sn-2obg05-jh.c.2mdn.net/videoplayback/id/901132114787ade6/itag/309/source/web_video_ads/xpc/EgVovf3BOg%3D%3D/ctier/L/acao/yes/ip/0.0.0.0/ipbits/0/expire/3938885448/sparams/acao,ctier,expire,hcs,id,ip,ipbits,itag,met,mh,mip,mm,mn,ms,mv,mvi,pl,rmhost,rms,source,xpc/signature/0B3EBFB44E8DA2163461096704A3A001E0736D02.5BD96BFD823D77A402AB64020157812FBB08FC3F/key/cms1/cms_redirect/yes/hcs/ir/met/1795219791,/mh/tl/mip/2804:7f0:bd82:f2e3:7dfb:6c8f:2aa7:9247/mm/42/mn/sn-2obg05-jh/ms/onc/mt/1795219495/mv/m/mvi/1/pl/42/rmhost/rr4---sn-2obg05-jh.c.2mdn.net/rms/onc,onc/file/file.mp4",
         "quality": "1080p",
-        "isGeoBlocked": true,
-        "referrer": null,
-        "userAgent": null
-      },
-      {
-        "title": "Rede Globo (720p)",
-        "url": "https://media2.cdntvms.com.br/tv_morena_dorados/index.m3u8",
-        "quality": "720p",
         "referrer": null,
         "userAgent": null
       }
@@ -16557,20 +16549,6 @@
       {
         "title": "AgroCanal (720p)",
         "url": "http://170.83.49.66:8083/AGROCANALHD/index.m3u8",
-        "quality": "720p",
-        "referrer": null,
-        "userAgent": null
-      },
-      {
-        "title": "AgroCanal (720p)",
-        "url": "http://186.219.52.187/agro_canal/index.m3u8",
-        "quality": "720p",
-        "referrer": null,
-        "userAgent": null
-      },
-      {
-        "title": "AgroCanal (720p)",
-        "url": "https://aovivo.equipea.com.br:5443/aovivort/streams/pshRLrnv6isXq7RG4747567774043229.m3u8",
         "quality": "720p",
         "referrer": null,
         "userAgent": null

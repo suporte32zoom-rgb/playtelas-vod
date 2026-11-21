@@ -259,8 +259,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
     };
 
     const lowerUrl = streamUrl.toLowerCase();
-    if (lowerUrl.endsWith('.ogg') || lowerUrl.includes('.ogg?')) {
-      tryNativePlayback(resolvedStreamUrl);
+    const isDirectMedia =
+      lowerUrl.endsWith('.ogg') ||
+      lowerUrl.includes('.ogg?') ||
+      lowerUrl.endsWith('.mp4') ||
+      lowerUrl.includes('.mp4?') ||
+      lowerUrl.endsWith('.webm') ||
+      lowerUrl.includes('.webm?');
+
+    if (isDirectMedia) {
+      setQualityLevels([]);
+      tryNativePlayback(streamUrl.startsWith('https://') ? streamUrl : resolvedStreamUrl);
       return;
     }
 
