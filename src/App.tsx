@@ -94,7 +94,6 @@ export default function App() {
     setProfile,
     toggleChannelLock,
     isChannelAllowed,
-    isChannelLocked,
     isPinModalOpen,
     pinPromptReason,
     promptPin,
@@ -202,18 +201,10 @@ export default function App() {
     });
   }, [activeCategory, activeSubcategory, searchQuery, favoriteIds, isChannelAllowed]);
 
-  // Channel switching with parental verification
+  // Channel switching without display lock
   const handleSelectChannel = (channelId: string) => {
     const targetChannel = getChannelById(channelId);
     if (!targetChannel) return;
-
-    if (isChannelLocked(targetChannel)) {
-      promptPin(`O canal ${targetChannel.name} está protegido com PIN.`, () => {
-        setSelectedChannelId(channelId);
-        broadcastChannelChange(targetChannel);
-      });
-      return;
-    }
 
     setSelectedChannelId(channelId);
     broadcastChannelChange(targetChannel);
@@ -352,10 +343,7 @@ export default function App() {
         <section className="w-full">
           <VideoPlayer
             channel={currentChannel}
-            isLocked={isChannelLocked(currentChannel)}
-            onUnlockRequest={() => {
-              promptPin(`Desbloquear canal ${currentChannel.name}`, () => {});
-            }}
+            isLocked={false}
             onOpenCastModal={() => setIsCastModalOpen(true)}
             onNextChannel={handleNextChannel}
             onPrevChannel={handlePrevChannel}
@@ -406,7 +394,7 @@ export default function App() {
                   channel={channel}
                   isActive={channel.id === currentChannel.id}
                   isFavorite={isFavorite(channel.id)}
-                  isLocked={isChannelLocked(channel)}
+                  isLocked={false}
                   onSelect={handleSelectChannel}
                   onToggleFavorite={toggleFavorite}
                 />

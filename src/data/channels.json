@@ -16923,18 +16923,11 @@
         "quality": "720p",
         "referrer": null,
         "userAgent": null
-      },
-      {
-        "title": "AXN (720p)",
-        "url": "http://170.83.49.66:8083/AXNHD/index.m3u8",
-        "quality": "720p",
-        "referrer": null,
-        "userAgent": null
       }
     ],
     "bestQuality": "720p",
     "isAdultOrRestricted": false,
-    "minAgeRating": 10,
+    "minAgeRating": 0,
     "description": "Transmissão ao vivo em 720p do canal AXN. Assista gratuitamente no PlayTelas com guia de programação em tempo real.",
     "epgSchedule": [
       {

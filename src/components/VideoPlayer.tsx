@@ -12,11 +12,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Cast,
-  Lock,
   RotateCcw,
   Sliders,
   Clock,
-  Sparkles,
   Layers,
   Ratio,
   Maximize2,
@@ -42,8 +40,6 @@ interface VideoPlayerProps {
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   channel,
-  isLocked = false,
-  onUnlockRequest,
   onOpenCastModal,
   onNextChannel,
   onPrevChannel,
@@ -220,7 +216,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         setStreamStatus('blocked_mixed_content');
         setIsCorsError(true);
         setErrorMsg(
-          'Este canal usa link HTTP em uma página HTTPS, e o navegador bloqueou a reprodução incorporada por política de Mixed Content. Tente um servidor alternativo, abra o stream em nova aba, copie o link para player externo (VLC) ou conecte via Proxy HTTPS abaixo.'
+          'Este canal usa link HTTP em uma página HTTPS e o navegador bloqueou por Mixed Content. Para reproduzir direto no Chrome como uma aba normal, permita "Conteúdo não seguro" nas configurações deste site (ícone ao lado do endereço), conecte via Proxy HTTPS abaixo ou abra o stream em nova aba / player externo.'
         );
       } else if (isCorsFinal) {
         setStreamStatus('blocked_cors');
@@ -279,10 +275,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       setCopiedUrl(false);
       attemptedIndicesRef.current.add(streamIdx);
 
-      // Destroy existing Hls instance
+      // Destroy existing Hls instance and cleanly reset <video> element to prevent frozen frames
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
+      }
+      try {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      } catch {
+        // ignore reset errors
       }
 
       const currentStreamMeta = channel.streams[streamIdx];
@@ -315,6 +318,51 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
       let triedNativeFallback = false;
 
+      const playVideoSafely = () => {
+        if (abortController.signal.aborted) return;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              if (abortController.signal.aborted) return;
+              setIsLoading(false);
+              setIsPlaying(true);
+              setStreamStatus('playing');
+            })
+            .catch((err) => {
+              if (abortController.signal.aborted) return;
+              if (err?.name === 'NotAllowedError' && !video.muted) {
+                // Retry muted if browser blocked unmuted autoplay on page load
+                video.muted = true;
+                setIsMuted(true);
+                video
+                  .play()
+                  .then(() => {
+                    if (abortController.signal.aborted) return;
+                    setIsLoading(false);
+                    setIsPlaying(true);
+                    setStreamStatus('playing');
+                  })
+                  .catch(() => {
+                    setIsLoading(false);
+                    setIsPlaying(false);
+                    setStreamStatus('paused');
+                  });
+                return;
+              }
+              if (err?.name !== 'AbortError') {
+                console.debug('[PlayTelas Player] Autoplay aguardando interação:', err);
+              }
+              setIsLoading(false);
+              setIsPlaying(false);
+              setStreamStatus('paused');
+            });
+        } else {
+          setIsLoading(false);
+          setStreamStatus('playing');
+        }
+      };
+
       const tryNativePlayback = (nativeUrl: string = resolvedStreamUrl) => {
         if (abortController.signal.aborted) return;
         if (hlsRef.current) {
@@ -328,18 +376,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           setIsLoading(false);
           setErrorMsg(null);
           setIsCorsError(false);
-          const p = video.play();
-          if (p !== undefined) {
-            p.then(() => {
-              setIsPlaying(true);
-              setStreamStatus('playing');
-            }).catch(() => {
-              setIsPlaying(false);
-              setStreamStatus('paused');
-            });
-          } else {
-            setStreamStatus('playing');
-          }
+          playVideoSafely();
         };
         const onError = () => {
           if (abortController.signal.aborted) return;
@@ -373,13 +410,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       if (Hls.isSupported()) {
         const hls = new Hls({
           enableWorker: true,
-          lowLatencyMode: true,
+          lowLatencyMode: false,
+          liveSyncDurationCount: 3,
+          liveMaxLatencyDurationCount: 10,
           backBufferLength: 60,
           maxBufferLength: 30,
           maxMaxBufferLength: 60,
+          maxBufferHole: 0.5,
+          nudgeOffset: 0.1,
+          nudgeMaxRetry: 5,
+          startFragPrefetch: true,
           manifestLoadingTimeOut: 10000,
           levelLoadingTimeOut: 10000,
           fragLoadingTimeOut: 14000,
+          fragLoadingMaxRetry: 4,
+          levelLoadingMaxRetry: 4,
           manifestLoadPolicy: {
             default: {
               maxTimeToFirstByteMs: 10000,
@@ -401,6 +446,9 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           }
         });
 
+        let mediaRecoveryAttempts = 0;
+        let lastStallRecoveryAt = 0;
+
         hlsRef.current = hls;
         hls.loadSource(resolvedStreamUrl);
         hls.attachMedia(video);
@@ -416,24 +464,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
             name: lvl.height ? `${lvl.height}p` : `Qualidade ${index + 1}`
           }));
           setQualityLevels(levels);
-
-          const playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                setIsPlaying(true);
-                setStreamStatus('playing');
-              })
-              .catch((err) => {
-                if (err?.name !== 'AbortError') {
-                  console.debug('[PlayTelas Player] Autoplay aguardando interação:', err);
-                }
-                setIsPlaying(false);
-                setStreamStatus('paused');
-              });
-          } else {
-            setStreamStatus('playing');
-          }
+          playVideoSafely();
         });
 
         hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
@@ -443,48 +474,80 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         hls.on(Hls.Events.ERROR, (_, data) => {
           if (abortController.signal.aborted) return;
           console.warn(`[PlayTelas Player] HLS Error (${protocolLabel}):`, data.type, data.details, data.response?.code);
-          if (data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR: {
-                const isZeroResponse = data.response?.code === 0 || !data.response?.code;
-                const isManifestCorsBlock =
-                  data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR &&
-                  isZeroResponse &&
-                  !isHttpOnHttps &&
-                  !activeProxy;
-                const isMixedContentFailure = isHttpOnHttps && isZeroResponse;
 
-                if (
-                  !triedNativeFallback &&
-                  video.canPlayType('application/vnd.apple.mpegurl')
-                ) {
-                  triedNativeFallback = true;
-                  tryNativePlayback(resolvedStreamUrl);
-                } else {
-                  failoverToNextStream({
-                    isMixedContent: isMixedContentFailure,
-                    isCors: isManifestCorsBlock
-                  });
+          // Non-fatal stall / buffer gap recovery so live video never stays frozen
+          if (!data.fatal) {
+            if (
+              data.details === Hls.ErrorDetails.BUFFER_STALLED_ERROR ||
+              data.details === Hls.ErrorDetails.BUFFER_NUDGE_ON_STALL ||
+              data.details === Hls.ErrorDetails.BUFFER_SEEK_OVER_HOLE
+            ) {
+              const now = Date.now();
+              if (now - lastStallRecoveryAt > 2500) {
+                lastStallRecoveryAt = now;
+                try {
+                  if (video.buffered.length > 0) {
+                    const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+                    if (bufferedEnd - video.currentTime > 1.5) {
+                      video.currentTime = Math.max(video.currentTime + 0.25, bufferedEnd - 1);
+                    }
+                  }
+                  if (video.paused && !errorMsg) {
+                    video.play().catch(() => {});
+                  }
+                } catch {
+                  // ignore seek nudge errors
                 }
-                break;
               }
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                if (data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR) {
-                  failoverToNextStream({
-                    isMixedContent: isHttpOnHttps,
-                    detail:
-                      'Este sinal utiliza fluxo direto (MPEG-TS) ou formato não-HLS incompatível com o player web. Abra em nova aba ou copie o link para player externo (VLC).'
-                  });
-                } else {
-                  hls.recoverMediaError();
-                }
-                break;
-              default:
+            }
+            return;
+          }
+
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR: {
+              const isZeroResponse = data.response?.code === 0 || !data.response?.code;
+              const isManifestCorsBlock =
+                data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR &&
+                isZeroResponse &&
+                !isHttpOnHttps &&
+                !activeProxy;
+              const isMixedContentFailure = isHttpOnHttps && isZeroResponse;
+
+              if (
+                !triedNativeFallback &&
+                video.canPlayType('application/vnd.apple.mpegurl')
+              ) {
+                triedNativeFallback = true;
+                tryNativePlayback(resolvedStreamUrl);
+              } else {
+                failoverToNextStream({
+                  isMixedContent: isMixedContentFailure,
+                  isCors: isManifestCorsBlock
+                });
+              }
+              break;
+            }
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              if (data.details === Hls.ErrorDetails.MANIFEST_PARSING_ERROR) {
+                failoverToNextStream({
+                  isMixedContent: isHttpOnHttps,
+                  detail:
+                    'Este sinal utiliza fluxo direto (MPEG-TS) ou formato não-HLS incompatível com o player web. Abra em nova aba ou copie o link para player externo (VLC).'
+                });
+              } else if (mediaRecoveryAttempts < 2) {
+                mediaRecoveryAttempts += 1;
+                hls.recoverMediaError();
+              } else {
                 failoverToNextStream({
                   isMixedContent: isHttpOnHttps
                 });
-                break;
-            }
+              }
+              break;
+            default:
+              failoverToNextStream({
+                isMixedContent: isHttpOnHttps
+              });
+              break;
           }
         });
       } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
@@ -510,18 +573,6 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   }, [channel.id]);
 
   useEffect(() => {
-    if (isLocked) {
-      clearLoadTimeout();
-      if (playbackAbortRef.current) {
-        playbackAbortRef.current.abort();
-      }
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
-        hlsRef.current = null;
-      }
-      return;
-    }
-
     const targetStream = channel.streams[currentStreamIndex] || channel.streams[0];
     if (targetStream?.url) {
       loadStream(targetStream.url, currentStreamIndex);
@@ -537,7 +588,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         hlsRef.current = null;
       }
     };
-  }, [channel, clearLoadTimeout, currentStreamIndex, isLocked, loadStream]);
+  }, [channel, clearLoadTimeout, currentStreamIndex, loadStream]);
 
   // Handle Controls Auto-hide
   const triggerUserActivity = useCallback(() => {
@@ -727,48 +778,57 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               : 'relative w-full rounded-2xl shadow-2xl border border-slate-800/80 aspect-video max-h-[68vh]'
         }`}
       >
-        {/* Video Element */}
-        {!isLocked ? (
-          <video
-            ref={videoRef}
-            playsInline
-            className={`w-full h-full ${getAspectRatioClass()} transition-all duration-200 cursor-pointer`}
-            onClick={isMiniPlayer ? scrollToMainPlayer : togglePlay}
-            onWaiting={() => {
+        {/* Video Element (no display lock) */}
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          className={`w-full h-full ${getAspectRatioClass()} transition-all duration-200 cursor-pointer`}
+          onClick={isMiniPlayer ? scrollToMainPlayer : togglePlay}
+          onWaiting={() => {
+            if (videoRef.current && videoRef.current.readyState < 3) {
               setIsLoading(true);
               if (!errorMsg) setStreamStatus('loading');
-            }}
-            onPlaying={() => {
-              setIsLoading(false);
+            }
+          }}
+          onLoadedData={() => {
+            setIsLoading(false);
+            setErrorMsg(null);
+          }}
+          onCanPlay={() => {
+            setIsLoading(false);
+            setErrorMsg(null);
+            if (videoRef.current && !videoRef.current.paused) {
               setIsPlaying(true);
               setStreamStatus('playing');
-            }}
-            onPause={() => {
-              setIsPlaying(false);
-              if (!isLoading && !errorMsg) setStreamStatus('paused');
-            }}
-          />
-      ) : (
-        <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center p-6 text-center z-20">
-          <div className="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 mb-4 animate-bounce">
-            <Lock className="w-8 h-8" />
-          </div>
-          <h3 className="text-xl font-bold text-white mb-2">Canal Bloqueado por Controle Parental</h3>
-          <p className="text-sm text-slate-400 max-w-md mb-6">
-            Este canal requer o PIN de segurança de 4 dígitos para liberação de exibição.
-          </p>
-          <button
-            onClick={onUnlockRequest}
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-600 to-pink-600 px-6 py-3 font-semibold text-white shadow-lg shadow-rose-600/30 hover:brightness-110 active:scale-95 transition cursor-pointer"
-          >
-            <Lock className="w-4 h-4" />
-            <span>Desbloquear com PIN</span>
-          </button>
-        </div>
-      )}
+            }
+          }}
+          onCanPlayThrough={() => {
+            setIsLoading(false);
+          }}
+          onTimeUpdate={() => {
+            if (isLoading && videoRef.current && videoRef.current.readyState >= 3) {
+              setIsLoading(false);
+              if (!videoRef.current.paused) {
+                setIsPlaying(true);
+                setStreamStatus('playing');
+              }
+            }
+          }}
+          onPlaying={() => {
+            setIsLoading(false);
+            setIsPlaying(true);
+            setErrorMsg(null);
+            setStreamStatus('playing');
+          }}
+          onPause={() => {
+            setIsPlaying(false);
+            if (!isLoading && !errorMsg) setStreamStatus('paused');
+          }}
+        />
 
       {/* Buffering Indicator */}
-      {isLoading && !isLocked && !errorMsg && (
+      {isLoading && !errorMsg && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] z-10 pointer-events-none">
           <div className="relative w-14 h-14">
             <div className="w-14 h-14 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin" />
@@ -783,7 +843,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       )}
 
       {/* Stream Error Overlay with Mirror Switcher */}
-      {errorMsg && !isLocked && (
+      {errorMsg && (
         <div className="absolute inset-0 bg-slate-950/95 flex flex-col items-center justify-center p-4 sm:p-6 text-center z-20 overflow-y-auto">
           <div
             className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-2 ${

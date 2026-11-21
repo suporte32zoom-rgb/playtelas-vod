@@ -17,7 +17,14 @@ export function useParentalControl() {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+        const parsed = JSON.parse(stored);
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          activeProfile: 'adulto',
+          kidsModeActive: false,
+          lockedChannelIds: []
+        };
       }
     } catch {
       // ignore
@@ -52,57 +59,25 @@ export function useParentalControl() {
     return { success: true, message: 'PIN atualizado com sucesso!' };
   }, [settings.pin]);
 
-  const setProfile = useCallback((profile: UserProfileType, onPinRequired?: () => void) => {
-    if (settings.activeProfile === 'kids' && profile !== 'kids') {
-      // Leaving Kids profile requires PIN
-      if (onPinRequired) {
-        onPinRequired();
-      }
-      return;
-    }
-
+  const setProfile = useCallback((profile: UserProfileType, _onPinRequired?: () => void) => {
     setSettings((prev) => ({
       ...prev,
       activeProfile: profile,
-      kidsModeActive: profile === 'kids'
+      kidsModeActive: false
     }));
-  }, [settings.activeProfile]);
-
-  const toggleChannelLock = useCallback((channelId: string) => {
-    setSettings((prev) => {
-      const exists = prev.lockedChannelIds.includes(channelId);
-      const updated = exists
-        ? prev.lockedChannelIds.filter((id) => id !== channelId)
-        : [...prev.lockedChannelIds, channelId];
-      return { ...prev, lockedChannelIds: updated };
-    });
   }, []);
 
-  const isChannelAllowed = useCallback((channel: Channel): boolean => {
-    if (settings.activeProfile === 'kids') {
-      // In kids mode: strictly only infantil category or Livre rating, and no locked channels
-      if (channel.category === 'infantil') return true;
-      if (channel.isAdultOrRestricted) return false;
-      if (channel.minAgeRating && channel.minAgeRating > 0) return false;
-      if (settings.lockedChannelIds.includes(channel.id)) return false;
-      // Allow general public/culture if Livre
-      return true;
-    }
+  const toggleChannelLock = useCallback((_channelId: string) => {
+    setSettings((prev) => ({ ...prev, lockedChannelIds: [] }));
+  }, []);
 
-    if (settings.activeProfile === 'familia') {
-      // Familia mode blocks 16+ and 18+ content
-      if (channel.isAdultOrRestricted) return false;
-      if (settings.lockedChannelIds.includes(channel.id)) return false;
-      return true;
-    }
-
-    // Adulto mode: all channels allowed, but individually locked channels still require unlock
+  const isChannelAllowed = useCallback((_channel: Channel): boolean => {
     return true;
-  }, [settings.activeProfile, settings.lockedChannelIds]);
+  }, []);
 
-  const isChannelLocked = useCallback((channel: Channel): boolean => {
-    return settings.lockedChannelIds.includes(channel.id);
-  }, [settings.lockedChannelIds]);
+  const isChannelLocked = useCallback((_channel: Channel): boolean => {
+    return false;
+  }, []);
 
   const promptPin = useCallback((reason: string, onSuccess: () => void) => {
     setPinPromptReason(reason);
