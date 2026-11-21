@@ -87,6 +87,14 @@ export interface ParentalControlSettings {
   maxRatingKids: number; // e.g. 0 (Livre) or 10
 }
 
+export type SmartTVTransport =
+  | 'google-cast'
+  | 'remote-playback'
+  | 'airplay'
+  | 'presentation'
+  | 'lan-dial'
+  | 'browser-receiver';
+
 export interface SmartTVDevice {
   id: string;
   name: string;
@@ -94,6 +102,8 @@ export interface SmartTVDevice {
   ip?: string;
   status: 'connected' | 'available' | 'disconnected';
   pairingCode?: string;
+  transport?: SmartTVTransport;
+  signalSource?: string;
 }
 
 export interface ScheduledNotification {

@@ -77,7 +77,11 @@ export default function App() {
     devices,
     activeDevice,
     isCasting,
+    isScanning,
+    castStatusMessage,
     pairingCode,
+    scanWifiDevices,
+    openNativeWifiPicker,
     connectToDevice,
     disconnectCast,
     broadcastChannelChange
@@ -442,7 +446,11 @@ export default function App() {
         channel={currentChannel}
         devices={devices}
         activeDevice={activeDevice}
+        isScanning={isScanning}
+        castStatusMessage={castStatusMessage}
         pairingCode={pairingCode}
+        onScanWifi={() => scanWifiDevices(currentChannel)}
+        onOpenNativePicker={() => openNativeWifiPicker(currentChannel)}
         onConnectDevice={(dev) => connectToDevice(dev, currentChannel)}
         onDisconnectCast={disconnectCast}
       />

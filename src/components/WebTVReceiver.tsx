@@ -18,30 +18,70 @@ export const WebTVReceiver: React.FC<{ onExit: () => void; initialRoom?: string 
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
 
-  // BroadcastChannel listener
+  // BroadcastChannel & Presentation Receiver listener
   useEffect(() => {
-    if (typeof BroadcastChannel === 'undefined') return;
-
-    const bc = new BroadcastChannel('cinelive_smart_tv_sync');
-    bc.postMessage({ type: 'RECEIVER_CONNECTED', code: roomCode });
-
-    bc.onmessage = (event) => {
-      const data = event.data;
+    const handleIncomingMessage = (data: { type?: string; channel?: Channel; command?: string; payload?: unknown }) => {
       if (!data) return;
-
       if (data.type === 'CHANNEL_CHANGED' && data.channel) {
         setCurrentChannel(data.channel);
         showFeedback(`Canal alterado: ${data.channel.name}`);
-      } else if (data.type === 'REMOTE_COMMAND') {
+      } else if (data.type === 'REMOTE_COMMAND' && data.command) {
         handleRemoteCommand(data.command, data.payload);
       } else if (data.type === 'STOP_CAST') {
         showFeedback('Transmissão pausada');
       }
     };
 
+    let bc: BroadcastChannel | null = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      bc = new BroadcastChannel('cinelive_smart_tv_sync');
+      bc.postMessage({ type: 'RECEIVER_CONNECTED', code: roomCode });
+
+      bc.onmessage = (event) => {
+        const data = event.data;
+        if (!data) return;
+        if (data.type === 'PING_RECEIVER') {
+          bc?.postMessage({ type: 'RECEIVER_PONG', code: roomCode });
+          return;
+        }
+        handleIncomingMessage(data);
+      };
+    }
+
+    const navPres = (navigator as unknown as {
+      presentation?: {
+        receiver?: {
+          connectionList: Promise<{
+            connections: Array<{ addEventListener: (ev: string, cb: (e: { data: string }) => void) => void }>;
+            addEventListener: (ev: string, cb: (e: { connection: { addEventListener: (ev: string, cb: (e: { data: string }) => void) => void } }) => void) => void;
+          }>;
+        };
+      };
+    }).presentation?.receiver;
+
+    if (navPres?.connectionList) {
+      navPres.connectionList
+        .then((list) => {
+          const bindConn = (conn: { addEventListener: (ev: string, cb: (e: { data: string }) => void) => void }) => {
+            conn.addEventListener('message', (ev) => {
+              try {
+                handleIncomingMessage(JSON.parse(ev.data));
+              } catch {
+                // ignore malformed message
+              }
+            });
+          };
+          list.connections.forEach(bindConn);
+          list.addEventListener('connectionavailable', (ev) => bindConn(ev.connection));
+        })
+        .catch(() => {});
+    }
+
     return () => {
-      bc.postMessage({ type: 'RECEIVER_DISCONNECTED', code: roomCode });
-      bc.close();
+      if (bc) {
+        bc.postMessage({ type: 'RECEIVER_DISCONNECTED', code: roomCode });
+        bc.close();
+      }
     };
   }, [roomCode]);
 
@@ -112,7 +152,7 @@ export const WebTVReceiver: React.FC<{ onExit: () => void; initialRoom?: string 
     }
   };
 
-  // Play current stream
+  // Play current stream (HLS and direct MP4/WebM/OGG with video + audio)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -125,7 +165,14 @@ export const WebTVReceiver: React.FC<{ onExit: () => void; initialRoom?: string 
       hlsRef.current = null;
     }
 
-    if (Hls.isSupported()) {
+    const lower = stream.url.toLowerCase();
+    const isDirect =
+      lower.includes('.mp4') || lower.includes('.webm') || lower.includes('.ogg');
+
+    if (isDirect) {
+      video.src = stream.url;
+      video.play().catch(() => {});
+    } else if (Hls.isSupported()) {
       const hls = new Hls({ enableWorker: true, lowLatencyMode: true });
       hlsRef.current = hls;
       hls.loadSource(stream.url);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Cast,
   Tv,
@@ -7,9 +7,10 @@ import {
   ExternalLink,
   X,
   QrCode,
-  Smartphone,
   Wifi,
-  Share2
+  Share2,
+  RefreshCw,
+  Radio
 } from 'lucide-react';
 import { Channel, SmartTVDevice } from '../types/tv';
 
@@ -19,7 +20,11 @@ interface SmartTVCastModalProps {
   channel: Channel;
   devices: SmartTVDevice[];
   activeDevice: SmartTVDevice | null;
+  isScanning: boolean;
+  castStatusMessage: string;
   pairingCode: string;
+  onScanWifi: () => void;
+  onOpenNativePicker: () => void;
   onConnectDevice: (device: SmartTVDevice) => void;
   onDisconnectCast: () => void;
 }
@@ -30,12 +35,24 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
   channel,
   devices,
   activeDevice,
+  isScanning,
+  castStatusMessage,
   pairingCode,
+  onScanWifi,
+  onOpenNativePicker,
   onConnectDevice,
   onDisconnectCast
 }) => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [activeTab, setActiveTab] = useState<'devices' | 'pairing' | 'm3u8'>('devices');
+  const onScanWifiRef = useRef(onScanWifi);
+  onScanWifiRef.current = onScanWifi;
+
+  useEffect(() => {
+    if (isOpen && activeTab === 'devices') {
+      onScanWifiRef.current();
+    }
+  }, [isOpen, activeTab]);
 
   if (!isOpen) return null;
 
@@ -43,9 +60,12 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
   const receiverUrl = `${window.location.origin}${window.location.pathname}?mode=tv&room=${pairingCode}`;
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }).catch(() => {});
+    }
   };
 
   return (
@@ -55,11 +75,11 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
         <div className="flex items-center justify-between pb-4 border-b border-slate-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-              <Cast className="w-5 h-5 animate-pulse" />
+              <Cast className={`w-5 h-5 ${isScanning ? 'animate-pulse' : ''}`} />
             </div>
             <div>
               <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                Enviar para Smart TV
+                Espelhar para Smart TV (Wi-Fi)
               </h3>
               <p className="text-xs text-slate-400">
                 Canal atual: <span className="text-indigo-300 font-semibold">{channel.name}</span>
@@ -83,7 +103,7 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
             }`}
           >
             <Wifi className="w-3.5 h-3.5" />
-            <span>Dispositivos ({devices.length})</span>
+            <span>Smart TVs Wi-Fi ({devices.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('pairing')}
@@ -92,7 +112,7 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
             }`}
           >
             <QrCode className="w-3.5 h-3.5" />
-            <span>Código de Pareamento</span>
+            <span>Navegador da TV</span>
           </button>
           <button
             onClick={() => setActiveTab('m3u8')}
@@ -101,72 +121,123 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
             }`}
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>Link M3U8 / DLNA</span>
+            <span>Link Direto</span>
           </button>
         </div>
 
-        {/* Tab 1: Discovered Smart TVs */}
+        {/* Tab 1: Real Wi-Fi Smart TV Signal Capture */}
         {activeTab === 'devices' && (
-          <div className="space-y-2 overflow-y-auto pr-1 my-2">
+          <div className="space-y-3 overflow-y-auto pr-1 my-2">
             {activeDevice && (
-              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping" />
-                  <div>
-                    <h4 className="text-sm font-bold text-white">{activeDevice.name}</h4>
-                    <span className="text-xs text-emerald-400 font-medium">Transmitindo em tempo real</span>
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-3 h-3 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-white truncate">{activeDevice.name}</h4>
+                    <span className="text-xs text-emerald-400 font-medium block truncate">
+                      Transmitindo imagem e áudio em tempo real
+                    </span>
                   </div>
                 </div>
                 <button
                   onClick={onDisconnectCast}
-                  className="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 text-xs font-semibold hover:bg-rose-600/30 transition cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl bg-rose-600/20 border border-rose-500/30 text-rose-300 text-xs font-semibold hover:bg-rose-600/30 transition cursor-pointer shrink-0 ml-2"
                 >
                   Desconectar
                 </button>
               </div>
             )}
 
-            <p className="text-xs text-slate-400 px-1 mb-2">
-              Selecione uma Smart TV detectada na mesma rede Wi-Fi:
-            </p>
+            {/* Scan Toolbar & Status */}
+            <div className="p-3 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <Radio className={`w-4 h-4 shrink-0 ${isScanning ? 'text-indigo-400 animate-pulse' : 'text-slate-400'}`} />
+                <span className="text-xs text-slate-300 leading-snug">{castStatusMessage}</span>
+              </div>
+              <button
+                onClick={onScanWifi}
+                disabled={isScanning}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 disabled:opacity-50 border border-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1.5 shrink-0 transition cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin text-indigo-400' : ''}`} />
+                <span>{isScanning ? 'Buscando...' : 'Atualizar'}</span>
+              </button>
+            </div>
 
-            {devices.map((device) => {
-              const isSelected = activeDevice?.id === device.id;
-              return (
-                <div
-                  key={device.id}
-                  onClick={() => onConnectDevice(device)}
-                  className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between group active:scale-[0.98] ${
-                    isSelected
-                      ? 'bg-indigo-600/20 border-indigo-500/60 shadow-lg'
-                      : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 group-hover:text-indigo-400 transition">
-                      <Tv className="w-5 h-5" />
+            {/* Real Detected TVs Only (Zero pre-added models) */}
+            {devices.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-xs text-slate-400 px-1">
+                  Smart TV(s) capturada(s) pelo sinal real na rede Wi-Fi:
+                </p>
+                {devices.map((device) => {
+                  const isSelected = activeDevice?.id === device.id;
+                  return (
+                    <div
+                      key={device.id}
+                      onClick={() => onConnectDevice(device)}
+                      className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between group active:scale-[0.98] ${
+                        isSelected
+                          ? 'bg-indigo-600/20 border-indigo-500/60 shadow-lg'
+                          : 'bg-slate-800/40 border-slate-700/60 hover:bg-slate-800 hover:border-slate-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-indigo-400 shrink-0">
+                          <Tv className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="text-sm font-semibold text-white group-hover:text-indigo-300 transition truncate">
+                            {device.name}
+                          </h4>
+                          <p className="text-xs text-slate-400 truncate">
+                            {device.signalSource || device.type}
+                            {device.ip ? ` • ${device.ip}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                      <span
+                        className={`text-xs px-3 py-1.5 rounded-xl font-semibold transition shrink-0 ml-2 ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-indigo-600/80 text-white group-hover:bg-indigo-500'
+                        }`}
+                      >
+                        {isSelected ? 'Conectado' : 'Conectar TV'}
+                      </span>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-white group-hover:text-indigo-300 transition">
-                        {device.name}
-                      </h4>
-                      <p className="text-xs text-slate-400 capitalize">
-                        {device.type.replace('-', ' ')} • {device.ip}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={`text-xs px-3 py-1.5 rounded-xl font-semibold transition ${
-                      isSelected
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-700 text-slate-200 group-hover:bg-indigo-600 group-hover:text-white'
-                    }`}
-                  >
-                    {isSelected ? 'Conectado' : 'Conectar'}
-                  </span>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-5 rounded-2xl bg-slate-950/60 border border-slate-800 text-center space-y-3">
+                <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 mx-auto">
+                  <Wifi className={`w-6 h-6 ${isScanning ? 'animate-pulse text-indigo-400' : ''}`} />
                 </div>
-              );
-            })}
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-white">
+                    {isScanning ? 'Capturando sinais na rede Wi-Fi...' : 'Nenhuma Smart TV detectada automaticamente'}
+                  </h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    Para proteger a privacidade da rede local, o navegador só exibe as Smart TVs da sua rede Wi-Fi quando você abre o seletor nativo do celular abaixo.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Direct Native OS / Browser Wi-Fi Smart TV Picker Button */}
+            <button
+              type="button"
+              onClick={onOpenNativePicker}
+              className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition cursor-pointer active:scale-[0.99]"
+            >
+              <Cast className="w-4 h-4" />
+              <span>Buscar e Escolher Smart TV Real no Wi-Fi</span>
+            </button>
+
+            <p className="text-[11px] text-slate-500 text-center px-2 leading-relaxed">
+              Certifique-se de que o smartphone e a Smart TV estão na mesma rede Wi-Fi (Android/Chrome usa Google Cast/Remote Playback; iPhone/iPad Safari usa AirPlay).
+            </p>
           </div>
         )}
 
@@ -175,7 +246,7 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
           <div className="flex flex-col items-center justify-center py-4 space-y-4 text-center overflow-y-auto">
             <div className="p-4 rounded-3xl bg-slate-950 border border-slate-800 flex flex-col items-center">
               <span className="text-xs text-slate-400 font-medium uppercase tracking-wider mb-2">
-                Código de Pareamento da TV
+                Código do Modo Receptor na TV
               </span>
               <div className="text-4xl font-mono font-extrabold tracking-widest text-indigo-400 bg-indigo-500/10 px-6 py-2.5 rounded-2xl border border-indigo-500/20">
                 {pairingCode}
@@ -184,25 +255,32 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
 
             <div className="max-w-sm space-y-2 text-xs text-slate-300">
               <p>
-                1. No navegador da sua Smart TV (Samsung, LG, Android TV ou Roku), acesse o aplicativo.
+                1. No navegador da sua Smart TV (Samsung Tizen, LG webOS, Android TV ou Roku), acesse o endereço abaixo.
               </p>
               <p>
-                2. Clique em <strong>"Modo Tela de TV (Receptor)"</strong> ou digite o código acima.
-              </p>
-              <p>
-                3. A TV passará a exibir o canal sintonizado e responderá ao controle remoto virtual deste celular!
+                2. O receptor receberá automaticamente imagem e áudio do canal sintonizado nesta sessão.
               </p>
             </div>
 
-            <a
-              href={receiverUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-2xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition cursor-pointer"
-            >
-              <ExternalLink className="w-4 h-4" />
-              <span>Testar Modo Receptor em Nova Aba</span>
-            </a>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => copyToClipboard(receiverUrl)}
+                className="flex items-center gap-2 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-4 py-2.5 text-xs font-semibold text-white transition cursor-pointer"
+              >
+                {copiedLink ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                <span>{copiedLink ? 'Link Copiado!' : 'Copiar Link da TV'}</span>
+              </button>
+              <a
+                href={receiverUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-2xl bg-indigo-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/30 transition cursor-pointer"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Abrir Modo Receptor</span>
+              </a>
+            </div>
           </div>
         )}
 
@@ -210,7 +288,7 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
         {activeTab === 'm3u8' && (
           <div className="space-y-4 py-2 overflow-y-auto">
             <p className="text-xs text-slate-400">
-              Você pode copiar a URL direta do fluxo m3u8 para reproduzir em reprodutores de Smart TV como IPTV Smarters, SS IPTV, VLC ou Kodi:
+              Você pode copiar a URL direta do fluxo para abrir em players nativos da Smart TV (VLC, IPTV Smarters, SS IPTV ou Kodi):
             </p>
 
             <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between gap-2">
@@ -232,8 +310,8 @@ export const SmartTVCastModal: React.FC<SmartTVCastModalProps> = ({
             <div className="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/60 text-xs text-slate-300 space-y-1.5">
               <div className="font-semibold text-white">Especificações do Sinal:</div>
               <p>• Resolução: {currentStream?.quality || 'HD'}</p>
-              <p>• Formato: Apple HLS (HTTP Live Streaming - m3u8)</p>
-              <p>• Protocolo: HTTPS / HTTP Adaptativo</p>
+              <p>• Áudio e Vídeo: Stream original sincronizado</p>
+              <p>• Protocolo: {currentStream?.url?.startsWith('http://') ? 'HTTP' : 'HTTPS'}</p>
             </div>
           </div>
         )}
